@@ -1,41 +1,10 @@
 import Image from "next/image";
+import { Navbar } from "@/components/navbar";
 
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/95 backdrop-blur-md dark:border-gray-800 dark:bg-background-dark/95 px-6 py-4 shadow-sm transition-all">
-        <div className="mx-auto flex max-w-350 items-center justify-between gap-6">
-          <div className="flex items-center gap-3 cursor-pointer">
-            <div className="flex size-10 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined text-2xl font-bold">storefront</span>
-            </div>
-            <span className="text-2xl font-bold tracking-tight text-primary dark:text-white">Wallamarket</span>
-          </div>
-          <nav className="hidden md:flex flex-1 justify-center gap-10">
-            <a className="group flex items-center gap-2 text-sm font-semibold text-text-secondary hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors" href="#">
-              <span className="material-symbols-outlined text-[22px] text-gray-400 group-hover:text-primary transition-colors">chat_bubble</span>
-              Messages
-            </a>
-            <a className="group flex items-center gap-2 text-sm font-semibold text-text-secondary hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors" href="#">
-              <span className="material-symbols-outlined text-[22px] text-gray-400 group-hover:text-primary transition-colors">favorite</span>
-              Favorites
-            </a>
-            <a className="group flex items-center gap-2 text-sm font-semibold text-text-secondary hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors" href="#">
-              <span className="material-symbols-outlined text-[22px] text-gray-400 group-hover:text-primary transition-colors">person</span>
-              Profile
-            </a>
-          </nav>
-          <div className="flex items-center gap-4">
-            <button className="flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-px hover:bg-primary-hover hover:shadow-primary/30 active:translate-y-px">
-              <span className="material-symbols-outlined text-[20px]">add</span>
-              <span>Upload Product</span>
-            </button>
-            <div className="size-11 cursor-pointer overflow-hidden rounded-full border-2 border-white ring-1 ring-gray-100 dark:border-gray-700 dark:ring-gray-800">
-              <Image width={44} height={44} className="h-full w-full object-cover" alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRpYHOqajivS0wCP-hE2yyA9nuZAtcKMiHDkE2Y2qBhN7I2ApLzUpEuPe0YP1DpVDLBJgu2IARzqZG1P0za8P47_m_34YvDQMq9bj4UQk-5JYTjNJvR3AZ9DJjwk_NojD-qfppMHYFmfdNtlELnJxI1XZisxV6kr2Zl8IXDZA7ee3hWH312hfCMB1FD6fYmBvCJbvJhzwOx0cwIUbTBCln5w_mAzv0kJw8WkG0z26kziDydAPLi-gnokEM9AAp1BFcW7V3TOuDA1A" unoptimized />
-            </div>
-          </div>
-        </div>
-      </header>
+      <Navbar />
       <section className="relative flex w-full flex-col items-center justify-center bg-white dark:bg-[#1f2937] py-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-size-[14px_24px]"></div>
         <div className="absolute left-[-5%] top-[-10%] size-125 rounded-full bg-primary/5 blur-3xl"></div>
