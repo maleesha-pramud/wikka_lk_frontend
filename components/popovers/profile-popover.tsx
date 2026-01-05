@@ -1,15 +1,29 @@
+import { logoutUser } from "@/app/actions"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
 import Image from "next/image"
+import { toast } from "sonner"
 
 interface ProfilePopoverProps {
   isDesktop: boolean
 }
 
 export function ProfilePopover({ isDesktop }: ProfilePopoverProps) {
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      window.location.reload();
+    } catch (error) {
+      console.error("Logout failed:", error);
+      const message = error instanceof Error ? error.message : "Login failed";
+      toast.error(message);
+    }
+  }
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -59,7 +73,7 @@ export function ProfilePopover({ isDesktop }: ProfilePopoverProps) {
             Settings
           </button>
           <div className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
-          <button className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 transition-colors text-left">
+          <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 transition-colors text-left">
             <span className="material-symbols-outlined text-[20px]">logout</span>
             Logout
           </button>

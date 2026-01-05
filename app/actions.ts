@@ -52,3 +52,16 @@ export async function registerUser(name: string, email: string, address: string,
   }
   return responseData;
 }
+
+export async function logoutUser() {
+  const response = await apiFetch(`${baseUrl}/user/logout`, {
+    method: 'GET',
+  });
+  const responseData = await response.json();
+  if (responseData.status) {
+    (await cookies()).delete('JSESSIONID');
+  } else {
+    throw new Error('Logout failed');
+  }
+  return responseData;
+}
