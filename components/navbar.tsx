@@ -23,7 +23,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/95 backdrop-blur-md dark:border-gray-800 dark:bg-background-dark/95 px-4 md:px-6 py-4 shadow-sm transition-all">
       <div className="mx-auto flex max-w-350 items-center justify-between gap-4 md:gap-6">
         {/* Logo */}
-        <div className="flex items-center gap-3 cursor-pointer flex-shrink-0">
+        <div className="flex items-center gap-3 cursor-pointer shrink-0">
           <div className="flex size-10 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/20">
             <span className="material-symbols-outlined text-2xl font-bold">storefront</span>
           </div>
@@ -64,7 +64,7 @@ export function Navbar() {
         </nav>
 
         {/* Desktop Right Section */}
-        <div className="hidden md:flex items-center gap-3 flex-shrink-0">
+        <div className="hidden md:flex items-center gap-3 shrink-0">
           <button
             onClick={() => openAuthDialog("login")}
             className="h-11 px-6 text-sm font-semibold border border-gray-200 rounded-md hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all bg-white dark:bg-background-dark text-text-main dark:text-white"
@@ -81,7 +81,7 @@ export function Navbar() {
             <span className="material-symbols-outlined text-[20px]">add</span>
             <span>Upload</span>
           </button>
-          <div className="size-11 cursor-pointer overflow-hidden rounded-full border-2 border-white ring-1 ring-gray-100 dark:border-gray-700 dark:ring-gray-800 flex-shrink-0">
+          <div className="size-11 cursor-pointer overflow-hidden rounded-full border-2 border-white ring-1 ring-gray-100 dark:border-gray-700 dark:ring-gray-800 shrink-0">
             <Image
               width={44}
               height={44}
@@ -96,7 +96,7 @@ export function Navbar() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden flex items-center justify-center size-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex-shrink-0"
+          className="md:hidden flex items-center justify-center size-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shrink-0"
           aria-label="Toggle menu"
         >
           <span className="material-symbols-outlined text-[24px] text-text-main dark:text-white">
@@ -188,7 +188,7 @@ export function Navbar() {
             {/* Drawer Footer - Profile Section */}
             <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-800">
               <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer">
-                <div className="size-12 overflow-hidden rounded-full border-2 border-gray-200 dark:border-gray-700 ring-1 ring-gray-100 dark:ring-gray-800 flex-shrink-0">
+                <div className="size-12 overflow-hidden rounded-full border-2 border-gray-200 dark:border-gray-700 ring-1 ring-gray-100 dark:ring-gray-800 shrink-0">
                   <Image
                     width={48}
                     height={48}
@@ -202,7 +202,7 @@ export function Navbar() {
                   <p className="text-sm font-semibold text-text-main dark:text-white truncate">John Doe</p>
                   <p className="text-xs text-text-secondary dark:text-gray-400 truncate">john@example.com</p>
                 </div>
-                <span className="material-symbols-outlined text-[20px] text-gray-400 flex-shrink-0">chevron_right</span>
+                <span className="material-symbols-outlined text-[20px] text-gray-400 shrink-0">chevron_right</span>
               </div>
             </div>
           </div>
