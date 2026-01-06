@@ -1,21 +1,15 @@
 "use client"
 
 import * as React from "react"
-import Image from "next/image"
-import { AuthDialog } from "@/components/login-dialog"
+import { AuthDialog } from "@/components/client/login-dialog"
 import {
   Drawer,
   DrawerContent,
   DrawerTitle,
-} from "@/components/ui/drawer"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import { ProfilePopover } from "./popovers/profile-popover"
+} from "@/components/client/ui/drawer"
+import { ProfilePopover } from "@/components/client/popovers/profile-popover"
 
-export function Navbar() {
+export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [authDialogOpen, setAuthDialogOpen] = React.useState(false)
   const [authMode, setAuthMode] = React.useState<"login" | "register">("login")
@@ -71,23 +65,31 @@ export function Navbar() {
 
         {/* Desktop Right Section */}
         <div className="hidden md:flex items-center gap-3 shrink-0">
-          <button
-            onClick={() => openAuthDialog("login")}
-            className="h-11 px-6 text-sm font-semibold border border-gray-200 rounded-md hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all bg-white dark:bg-background-dark text-text-main dark:text-white"
-          >
-            Login
-          </button>
-          <button
-            onClick={() => openAuthDialog("register")}
-            className="h-11 px-6 text-sm font-semibold border border-gray-200 rounded-md hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all bg-white dark:bg-background-dark text-text-main dark:text-white"
-          >
-            Register
-          </button>
-          <button className="flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-px hover:bg-primary-hover hover:shadow-primary/30 active:translate-y-px whitespace-nowrap">
-            <span className="material-symbols-outlined text-[20px]">add</span>
-            <span>Upload</span>
-          </button>
-          <ProfilePopover isDesktop={true} />
+          {!isLoggedIn && (
+            <>
+              <button
+                onClick={() => openAuthDialog("login")}
+                className="h-11 px-6 text-sm font-semibold border border-gray-200 rounded-md hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all bg-white dark:bg-background-dark text-text-main dark:text-white"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => openAuthDialog("register")}
+                className="h-11 px-6 text-sm font-semibold border border-gray-200 rounded-md hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all bg-white dark:bg-background-dark text-text-main dark:text-white"
+              >
+                Register
+              </button>
+            </>
+          )}
+          {isLoggedIn && (
+            <>
+              <button className="flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-px hover:bg-primary-hover hover:shadow-primary/30 active:translate-y-px whitespace-nowrap">
+                <span className="material-symbols-outlined text-[20px]">add</span>
+                <span>Upload</span>
+              </button>
+              <ProfilePopover isDesktop={true} />
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -154,38 +156,44 @@ export function Navbar() {
             </nav>
 
             {/* Mobile Auth Section */}
-            <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-800">
-              <div className="flex flex-col gap-3 mb-4">
-                <button
-                  onClick={() => openAuthDialog("login")}
-                  className="h-11 px-6 text-sm font-semibold border border-gray-200 rounded-md hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all bg-white dark:bg-background-dark text-text-main dark:text-white"
-                >
-                  Login
-                </button>
-                <button
-                  onClick={() => openAuthDialog("register")}
-                  className="h-11 px-6 text-sm font-semibold border border-gray-200 rounded-md hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all bg-white dark:bg-background-dark text-text-main dark:text-white"
-                >
-                  Register
-                </button>
+            {!isLoggedIn && (
+              <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-800">
+                <div className="flex flex-col gap-3 mb-4">
+                  <button
+                    onClick={() => openAuthDialog("login")}
+                    className="h-11 px-6 text-sm font-semibold border border-gray-200 rounded-md hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all bg-white dark:bg-background-dark text-text-main dark:text-white"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => openAuthDialog("register")}
+                    className="h-11 px-6 text-sm font-semibold border border-gray-200 rounded-md hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all bg-white dark:bg-background-dark text-text-main dark:text-white"
+                  >
+                    Register
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Mobile Upload Button */}
-            <div className="px-4 py-2">
-              <button className="w-full flex items-center justify-center gap-2 h-11 rounded-lg bg-primary px-6 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-px hover:bg-primary-hover hover:shadow-primary/30 active:translate-y-px">
-                <span className="material-symbols-outlined text-[20px]">add</span>
-                <span>Upload Product</span>
-              </button>
-            </div>
+            {isLoggedIn && (
+              <div className="px-4 py-2">
+                <button className="w-full flex items-center justify-center gap-2 h-11 rounded-lg bg-primary px-6 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-px hover:bg-primary-hover hover:shadow-primary/30 active:translate-y-px">
+                  <span className="material-symbols-outlined text-[20px]">add</span>
+                  <span>Upload Product</span>
+                </button>
+              </div>
+            )}
 
             {/* Spacer to push profile to bottom */}
             <div className="flex-1" />
 
             {/* Drawer Footer - Profile Section */}
-            <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-800">
-              <ProfilePopover isDesktop={false} />
-            </div>
+            {isLoggedIn && (
+              <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-800">
+                <ProfilePopover isDesktop={false} />
+              </div>
+            )}
           </div>
         </DrawerContent>
       </Drawer>

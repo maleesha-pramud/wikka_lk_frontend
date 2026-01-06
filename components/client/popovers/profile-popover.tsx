@@ -3,20 +3,26 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/client/ui/popover"
 import Image from "next/image"
 import { toast } from "sonner"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+
 
 interface ProfilePopoverProps {
   isDesktop: boolean
 }
 
 export function ProfilePopover({ isDesktop }: ProfilePopoverProps) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
       await logoutUser();
-      window.location.reload();
+      setOpen(false);
+      router.refresh();
     } catch (error) {
       console.error("Logout failed:", error);
       const message = error instanceof Error ? error.message : "Login failed";
@@ -25,7 +31,7 @@ export function ProfilePopover({ isDesktop }: ProfilePopoverProps) {
   }
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         {isDesktop ? (
           <div className="size-11 cursor-pointer overflow-hidden rounded-full border-2 border-white ring-1 ring-gray-100 dark:border-gray-700 dark:ring-gray-800 shrink-0 hover:ring-primary/30 transition-all">

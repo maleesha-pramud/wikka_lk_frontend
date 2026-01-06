@@ -2,8 +2,8 @@
 "use client";
 
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/client/ui/dialog";
+import { Button } from "@/components/client/ui/button";
 import * as React from "react";
 
 interface SuccessDialogProps {

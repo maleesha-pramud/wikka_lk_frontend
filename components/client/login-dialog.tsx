@@ -8,12 +8,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+} from "@/components/client/ui/dialog"
+import { Input } from "@/components/client/ui/input"
+import { Button } from "@/components/client/ui/button"
 
 import { loginUser, registerUser } from "@/app/actions"
-import { SuccessDialog } from "@/components/dialogs/success-dialog"
+import { SuccessDialog } from "@/components/client/dialogs/success-dialog"
 import { toast } from "sonner"
 
 type AuthMode = "login" | "register"
