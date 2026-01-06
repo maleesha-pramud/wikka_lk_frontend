@@ -317,7 +317,7 @@ export default function Home() {
               <div className="flex size-9 items-center justify-center rounded-full bg-primary text-white">
                 <span className="material-symbols-outlined text-xl">storefront</span>
               </div>
-              <span className="text-xl font-bold tracking-tight text-text-main dark:text-white">Wallamarket</span>
+              <span className="text-xl font-bold tracking-tight text-text-main dark:text-white">Wikka.lk</span>
             </div>
             <p className="max-w-xs text-sm leading-relaxed text-text-secondary dark:text-gray-400">
               The leading platform for buying and selling locally. Safe, simple, and sustainable commerce for everyone.
@@ -350,7 +350,7 @@ export default function Home() {
           </div>
         </div>
         <div className="mx-auto mt-12 max-w-350 border-t border-gray-100 pt-8 text-center text-xs text-gray-400 dark:border-gray-800 dark:text-gray-600 px-6">
-          © 2023 Wallamarket Inc. All rights reserved.
+          © 2023 Wikka.lk Inc. All rights reserved.
         </div>
       </footer>
     </div>

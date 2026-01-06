@@ -28,7 +28,7 @@ export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
             <span className="material-symbols-outlined text-2xl font-bold">storefront</span>
           </div>
           <span className="text-xl md:text-2xl font-bold tracking-tight text-primary dark:text-white whitespace-nowrap">
-            Wallamarket
+            Wikka.lk
           </span>
         </div>
 
@@ -114,7 +114,7 @@ export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
               <div className="flex size-10 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/20">
                 <span className="material-symbols-outlined text-2xl font-bold">storefront</span>
               </div>
-              <span className="text-xl font-bold tracking-tight text-primary dark:text-white">Wallamarket</span>
+              <span className="text-xl font-bold tracking-tight text-primary dark:text-white">Wikka.lk</span>
             </div>
             <button
               onClick={() => setMobileMenuOpen(false)}

@@ -9,7 +9,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Wallamarket - Buy & Sell Locally",
+  title: "Wikka.lk - Buy & Sell Locally",
   description: "The leading platform for buying and selling locally. Safe, simple, and sustainable commerce for everyone.",
 };
 
