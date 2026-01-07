@@ -11,7 +11,7 @@ interface Variant {
 }
 
 interface FormErrors {
-  title?: string;
+  productName?: string;
   category?: string;
   brand?: string;
   model?: string;
@@ -21,7 +21,7 @@ interface FormErrors {
 }
 
 export default function SellPage() {
-  const [title, setTitle] = useState("");
+  const [productName, setProductName] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("cameras");
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
@@ -43,7 +43,7 @@ export default function SellPage() {
   // Auto-save to localStorage
   useEffect(() => {
     const draft = {
-      title,
+      productName,
       selectedCategory,
       brand,
       model,
@@ -56,7 +56,7 @@ export default function SellPage() {
     };
     localStorage.setItem("sell-draft", JSON.stringify(draft));
   }, [
-    title,
+    productName,
     selectedCategory,
     brand,
     model,
@@ -74,7 +74,7 @@ export default function SellPage() {
     if (draft) {
       try {
         const parsed = JSON.parse(draft);
-        setTitle(parsed.title || "");
+        setProductName(parsed.title || "");
         setSelectedCategory(parsed.selectedCategory || "cameras");
         setBrand(parsed.brand || "");
         setModel(parsed.model || "");
@@ -95,10 +95,10 @@ export default function SellPage() {
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    if (!title.trim()) {
-      newErrors.title = "Title is required";
-    } else if (title.length < 10) {
-      newErrors.title = "Title must be at least 10 characters";
+    if (!productName.trim()) {
+      newErrors.productName = "Product Name is required";
+    } else if (productName.length < 10) {
+      newErrors.productName = "Product Name must be at least 10 characters";
     }
 
     if (!selectedCategory) {
@@ -168,7 +168,7 @@ export default function SellPage() {
       });
 
       // Reset form
-      setTitle("");
+      setProductName("");
       setSelectedCategory("cameras");
       setBrand("");
       setModel("");
@@ -324,26 +324,26 @@ export default function SellPage() {
             <div className="flex flex-col gap-2">
               <label
                 className="text-sm font-bold text-text-main-light dark:text-text-main-dark ml-1"
-                htmlFor="title"
+                htmlFor="productName"
               >
-                Title
+                Product Name
               </label>
               <div className="relative">
                 <input
                   className="w-full rounded-xl border border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark text-text-main-light dark:text-text-main-dark placeholder-text-secondary-light/60 px-4 py-3.5 focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm text-base"
-                  id="title"
+                  id="productName"
                   placeholder="What are you selling? (e.g. iPhone 12 Pro Max 128GB)"
                   type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  value={productName}
+                  onChange={(e) => setProductName(e.target.value)}
                   maxLength={50}
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-text-secondary-light font-medium bg-surface-light dark:bg-surface-dark px-1 rounded">
-                  {title.length}/50
+                  {productName.length}/50
                 </span>
               </div>
-              {errors.title && (
-                <p className="text-red-500 text-xs mt-1">{errors.title}</p>
+              {errors.productName && (
+                <p className="text-red-500 text-xs mt-1">{errors.productName}</p>
               )}
             </div>
 

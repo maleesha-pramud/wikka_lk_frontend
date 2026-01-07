@@ -1,0 +1,51 @@
+[
+  {
+    "id": "dashboard",
+    "label": "Dashboard",
+    "icon": "dashboard",
+    "href": "/dashboard"
+  },
+  {
+    "id": "listings",
+    "label": "My Listings",
+    "icon": "inventory_2",
+    "href": "/dashboard/listings"
+  },
+  {
+    "id": "sell",
+    "label": "Sell Item",
+    "icon": "add_circle",
+    "href": "/sell"
+  },
+  {
+    "id": "orders",
+    "label": "Orders",
+    "icon": "shopping_bag",
+    "href": "/dashboard/orders"
+  },
+  {
+    "id": "messages",
+    "label": "Messages",
+    "icon": "chat_bubble",
+    "href": "/dashboard/messages",
+    "badge": "3"
+  },
+  {
+    "id": "favorites",
+    "label": "Favorites",
+    "icon": "favorite",
+    "href": "/dashboard/favorites"
+  },
+  {
+    "id": "analytics",
+    "label": "Analytics",
+    "icon": "analytics",
+    "href": "/dashboard/analytics"
+  },
+  {
+    "id": "settings",
+    "label": "Settings",
+    "icon": "settings",
+    "href": "/dashboard/settings"
+  }
+]

@@ -171,3 +171,7 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+.bg-primary-light {
+  background-color: #e0f7f5 !important;
+}
