@@ -24,23 +24,35 @@
     "href": "/dashboard/orders"
   },
   {
-    "id": "messages",
-    "label": "Messages",
-    "icon": "chat_bubble",
-    "href": "/dashboard/messages",
+    "id": "reviews",
+    "label": "Reviews",
+    "icon": "star",
+    "href": "/dashboard/reviews",
     "badge": "3"
   },
   {
-    "id": "favorites",
-    "label": "Favorites",
-    "icon": "favorite",
-    "href": "/dashboard/favorites"
+    "id": "categories",
+    "label": "Categories",
+    "icon": "widgets",
+    "href": "/dashboard/categories"
   },
   {
-    "id": "analytics",
-    "label": "Analytics",
-    "icon": "analytics",
-    "href": "/dashboard/analytics"
+    "id": "brands",
+    "label": "Brands",
+    "icon": "label",
+    "href": "/dashboard/brands"
+  },
+  {
+    "id": "models",
+    "label": "Models",
+    "icon": "category",
+    "href": "/dashboard/models"
+  },
+  {
+    "id": "colors",
+    "label": "Colors",
+    "icon": "palette",
+    "href": "/dashboard/colors"
   },
   {
     "id": "settings",

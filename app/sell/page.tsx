@@ -299,7 +299,7 @@ export default function SellPage() {
   };
 
   return (
-    <main className="grow w-full max-w-4xl mx-auto px-4 py-8 md:py-12">
+    <main className="px-6 lg:px-8 py-8">
       <div className="mb-10 max-w-2xl">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-text-main-light dark:text-text-main-dark tracking-tight mb-3">
           What are you selling?
