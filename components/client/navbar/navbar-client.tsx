@@ -8,6 +8,7 @@ import {
   DrawerTitle,
 } from "@/components/client/ui/drawer"
 import { ProfilePopover } from "@/components/client/popovers/profile-popover"
+import Link from "next/link"
 
 export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
@@ -83,10 +84,10 @@ export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
           )}
           {isLoggedIn && (
             <>
-              <button className="flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-px hover:bg-primary-hover hover:shadow-primary/30 active:translate-y-px whitespace-nowrap">
+              <Link href="/sell" className="flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-px hover:bg-primary-hover hover:shadow-primary/30 active:translate-y-px whitespace-nowrap">
                 <span className="material-symbols-outlined text-[20px]">add</span>
-                <span>Upload</span>
-              </button>
+                <span>Sell Product</span>
+              </Link>
               <ProfilePopover isDesktop={true} />
             </>
           )}
@@ -175,12 +176,12 @@ export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
               </div>
             )}
 
-            {/* Mobile Upload Button */}
+            {/* Mobile Sell Product Button */}
             {isLoggedIn && (
               <div className="px-4 py-2">
                 <button className="w-full flex items-center justify-center gap-2 h-11 rounded-lg bg-primary px-6 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-px hover:bg-primary-hover hover:shadow-primary/30 active:translate-y-px">
                   <span className="material-symbols-outlined text-[20px]">add</span>
-                  <span>Upload Product</span>
+                  <span>Sell Product</span>
                 </button>
               </div>
             )}

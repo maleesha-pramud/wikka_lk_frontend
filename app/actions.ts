@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers'
 import { apiFetch } from '@/lib/server-utils'
+import { redirect } from 'next/navigation';
 
 const baseUrl = process.env.BACKEND_BASE_URL;
 
@@ -20,6 +21,12 @@ async function setCookieHeader(cookieString: string | null) {
   }
 }
 
+async function handleRedirection(response: Response) {
+  if (response.redirected) {
+    redirect(response.url);
+  }
+}
+
 export async function loginUser(email: string, password: string) {
   const response = await apiFetch(`${baseUrl}/user/login`, {
     method: 'POST',
@@ -27,12 +34,12 @@ export async function loginUser(email: string, password: string) {
     body: JSON.stringify({ email, password }),
   });
 
-  // Extract JSESSIONID from response headers
+  await handleRedirection(response);
   await setCookieHeader(response.headers.get('set-cookie'));
 
   const responseData = await response.json();
   if (!responseData.status) {
-    throw new Error('Login failed');
+    throw new Error(responseData.message || 'Login failed');
   }
   return responseData;
 }
@@ -44,11 +51,12 @@ export async function registerUser(name: string, email: string, address: string,
     body: JSON.stringify({ name, email, address, password, accountType: accountType == 'seller' ? 2 : 3 }),
   });
 
+  await handleRedirection(response);
   await setCookieHeader(response.headers.get('set-cookie'));
 
   const responseData = await response.json();
   if (!responseData.status) {
-    throw new Error('Registration failed');
+    throw new Error(responseData.message || 'Registration failed');
   }
   return responseData;
 }
@@ -57,11 +65,14 @@ export async function logoutUser() {
   const response = await apiFetch(`${baseUrl}/user/logout`, {
     method: 'GET',
   });
+
+  await handleRedirection(response);
   const responseData = await response.json();
-  if (responseData.status) {
-    (await cookies()).delete('JSESSIONID');
+
+  if (!response.status) {
+    throw new Error(responseData.message || 'Logout failed');
   } else {
-    throw new Error('Logout failed');
+    (await cookies()).delete('JSESSIONID');
   }
   return responseData;
 }
