@@ -222,29 +222,61 @@ export default function BrandsPage() {
 
         {/* Brands Table */}
         <div className="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-card border border-border-light/50 dark:border-border-dark overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    ID
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Brand Name
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Created At
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Updated At
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border-light dark:divide-border-dark">
-                {filteredBrands.map((brand) => (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="flex flex-col items-center gap-4">
+                <span className="material-symbols-outlined animate-spin text-5xl text-primary">
+                  progress_activity
+                </span>
+                <p className="text-text-secondary-light dark:text-text-secondary-dark font-medium">
+                  Loading brands...
+                </p>
+              </div>
+            </div>
+          ) : filteredBrands.length === 0 ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="flex flex-col items-center gap-4">
+                <span className="material-symbols-outlined text-5xl text-text-secondary-light/30 dark:text-text-secondary-dark/30">
+                  {searchQuery ? "search_off" : "inventory_2"}
+                </span>
+                <p className="text-text-secondary-light dark:text-text-secondary-dark font-medium">
+                  {searchQuery ? "No brands found matching your search" : "No brands yet"}
+                </p>
+                {!searchQuery && (
+                  <button
+                    onClick={() => setShowAddDialog(true)}
+                    className="mt-2 flex items-center gap-2 bg-primary hover:bg-primary-hover text-white font-bold px-5 py-2.5 rounded-lg shadow-lg shadow-primary/30 transition-all"
+                  >
+                    <span className="material-symbols-outlined text-lg">add</span>
+                    Add Your First Brand
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
+                      ID
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
+                      Brand Name
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
+                      Created At
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
+                      Updated At
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border-light dark:divide-border-dark">
+                  {filteredBrands.map((brand) => (
                   <tr
                     key={brand.id}
                     className="hover:bg-background-light dark:hover:bg-background-dark transition-colors"
@@ -310,9 +342,10 @@ export default function BrandsPage() {
                     </td>
                   </tr>
                 ))}
-              </tbody>
-            </table>
-          </div>
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
 
