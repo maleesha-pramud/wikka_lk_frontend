@@ -47,7 +47,7 @@ export default function Sidebar() {
           <nav className="flex-1 overflow-y-auto p-4">
             <div className="space-y-1">
               {sidebarItems.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+                const isActive = pathname === item.href || item.href == "/dashboard";
                 
                 return (
                   <Link
