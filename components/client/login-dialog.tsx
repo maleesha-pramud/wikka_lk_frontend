@@ -32,37 +32,111 @@ export function AuthDialog({ open, onOpenChange, mode, onModeChange }: AuthDialo
   const [name, setName] = React.useState("")
   const [address, setAddress] = React.useState("")
   const [accountType, setAccountType] = React.useState<"buyer" | "seller">("buyer")
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
 
   const [showSuccess, setShowSuccess] = React.useState(false);
   const [successMessage, setSuccessMessage] = React.useState("");
 
   const handleSubmit = async () => {
+    // Validation
+    if (!email.trim()) {
+      toast.error("Email is required");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+
+    if (!password.trim()) {
+      toast.error("Password is required");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long");
+      return;
+    }
+
     if (mode === "login") {
       try {
-        const response = await loginUser(email, password);
-        setSuccessMessage(response.message);
-        onOpenChange(false);
-        setShowSuccess(true);
-        // Optionally, handle user data or redirect after dialog closes
+        setIsSubmitting(true);
+        const response = await loginUser(email.trim(), password);
+        if (response.status) {
+          setSuccessMessage(response.message || "Login successful!");
+          onOpenChange(false);
+          setShowSuccess(true);
+          // Reset form
+          setEmail("");
+          setPassword("");
+        } else {
+          toast.error(response.message || "Unable to login. Please try again.");
+        }
       } catch (error) {
         console.error("Login failed:", error);
-        const message = error instanceof Error ? error.message : "Login failed";
-        toast.error(message);
+        toast.error(
+          error instanceof Error && error.message
+            ? error.message
+            : "Network error. Please check your connection and try again."
+        );
+      } finally {
+        setIsSubmitting(false);
       }
     } else {
+      // Additional validation for registration
+      if (!name.trim()) {
+        toast.error("Name is required");
+        return;
+      }
+
+      if (name.trim().length < 2) {
+        toast.error("Name must be at least 2 characters long");
+        return;
+      }
+
+      if (!address.trim()) {
+        toast.error("Address is required");
+        return;
+      }
+
       if (password !== confirmPassword) {
         toast.error("Passwords do not match");
         return;
       }
+
       try {
-        const response = await registerUser(name, email, address, password, accountType);
-        setSuccessMessage(response.message);
-        onOpenChange(false);
-        setShowSuccess(true);
+        setIsSubmitting(true);
+        const response = await registerUser(
+          name.trim(),
+          email.trim(),
+          address.trim(),
+          password,
+          accountType
+        );
+        if (response.status) {
+          setSuccessMessage(response.message || "Registration successful!");
+          onOpenChange(false);
+          setShowSuccess(true);
+          // Reset form
+          setEmail("");
+          setPassword("");
+          setConfirmPassword("");
+          setName("");
+          setAddress("");
+          setAccountType("buyer");
+        } else {
+          toast.error(response.message || "Unable to register. Please try again.");
+        }
       } catch (error) {
         console.error("Registration failed:", error);
-        const message = error instanceof Error ? error.message : "Registration failed";
-        toast.error(message);
+        toast.error(
+          error instanceof Error && error.message
+            ? error.message
+            : "Network error. Please check your connection and try again."
+        );
+      } finally {
+        setIsSubmitting(false);
       }
     }
   }
@@ -230,12 +304,24 @@ export function AuthDialog({ open, onOpenChange, mode, onModeChange }: AuthDialo
           <DialogFooter className="flex flex-col! gap-4 px-6 pb-6 pt-0">
             <Button
               onClick={handleSubmit}
-              className="w-full h-12 bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/20 transition-all hover:-translate-y-px hover:shadow-primary/30 active:translate-y-0 rounded-lg"
+              disabled={isSubmitting || !email.trim() || !password.trim()}
+              className="w-full h-12 bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/20 transition-all hover:-translate-y-px hover:shadow-primary/30 active:translate-y-0 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 flex items-center justify-center gap-2"
             >
-              <span className="material-symbols-outlined text-[20px]">
-                {isLogin ? "login" : "person_add"}
-              </span>
-              {isLogin ? "Sign In" : "Create Account"}
+              {isSubmitting ? (
+                <>
+                  <span className="material-symbols-outlined animate-spin text-[20px]">
+                    progress_activity
+                  </span>
+                  {isLogin ? "Signing in..." : "Creating account..."}
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined text-[20px]">
+                    {isLogin ? "login" : "person_add"}
+                  </span>
+                  {isLogin ? "Sign In" : "Create Account"}
+                </>
+              )}
             </Button>
             <p className="text-center text-sm text-text-secondary dark:text-gray-400">
               {isLogin ? "Don't have an account? " : "Already have an account? "}
