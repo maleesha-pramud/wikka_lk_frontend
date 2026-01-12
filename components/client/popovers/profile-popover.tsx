@@ -8,6 +8,7 @@ import Image from "next/image"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import Link from "next/link"
 
 
 interface ProfilePopoverProps {
@@ -66,20 +67,20 @@ export function ProfilePopover({ isDesktop }: ProfilePopoverProps) {
       </PopoverTrigger>
       <PopoverContent align="end" className="w-56 p-0">
         <div className="flex flex-col">
-          <button className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left">
+          <Link href={"/profile"} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left">
             <span className="material-symbols-outlined text-[20px]">person</span>
             Profile
-          </button>
-          <button className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left">
+          </Link>
+          <Link href={"/dashboard"} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left">
             <span className="material-symbols-outlined text-[20px]">dashboard</span>
             Dashboard
-          </button>
-          <button className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left">
+          </Link>
+          <Link href={"/settings"} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left">
             <span className="material-symbols-outlined text-[20px]">settings</span>
             Settings
-          </button>
+          </Link>
           <div className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
-          <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 transition-colors text-left">
+          <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 transition-colors text-left focus:outline-none cursor-pointer">
             <span className="material-symbols-outlined text-[20px]">logout</span>
             Logout
           </button>
