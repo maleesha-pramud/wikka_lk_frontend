@@ -76,3 +76,64 @@ export async function logoutUser() {
   }
   return responseData;
 }
+
+// Brand Management Actions
+export async function getAllBrands() {
+  const response = await apiFetch(`${baseUrl}/brand`, {
+    method: 'GET',
+  });
+
+  await handleRedirection(response);
+  const responseData = await response.json();
+
+  if (!responseData.status) {
+    throw new Error(responseData.message || 'Failed to fetch brands');
+  }
+  return responseData;
+}
+
+export async function addBrand(name: string) {
+  const response = await apiFetch(`${baseUrl}/brand`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+
+  await handleRedirection(response);
+  const responseData = await response.json();
+
+  if (!responseData.status) {
+    throw new Error(responseData.message || 'Failed to add brand');
+  }
+  return responseData;
+}
+
+export async function updateBrand(id: string, name: string) {
+  const response = await apiFetch(`${baseUrl}/brand`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, name }),
+  });
+
+  await handleRedirection(response);
+  const responseData = await response.json();
+
+  if (!responseData.status) {
+    throw new Error(responseData.message || 'Failed to update brand');
+  }
+  return responseData;
+}
+
+export async function deleteBrand(id: string) {
+  const response = await apiFetch(`${baseUrl}/brand?id=${id}`, {
+    method: 'DELETE',
+  });
+
+  await handleRedirection(response);
+  const responseData = await response.json();
+
+  if (!responseData.status) {
+    throw new Error(responseData.message || 'Failed to delete brand');
+  }
+  return responseData;
+}

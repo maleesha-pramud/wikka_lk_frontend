@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { getAllBrands, addBrand, updateBrand, deleteBrand } from "@/app/actions";
 import {
   Dialog,
   DialogContent,
@@ -14,100 +15,151 @@ import {
 interface Brand {
   id: number;
   name: string;
-  category: string;
-  productsCount: number;
   createdAt: string;
-  status: "active" | "inactive";
+  updatedAt: string;
 }
 
 export default function BrandsPage() {
-  const [brands, setBrands] = useState<Brand[]>([
-    { id: 1, name: "Apple", category: "Electronics", productsCount: 45, createdAt: "2024-01-15", status: "active" },
-    { id: 2, name: "Samsung", category: "Electronics", productsCount: 38, createdAt: "2024-01-20", status: "active" },
-    { id: 3, name: "Nike", category: "Fashion", productsCount: 22, createdAt: "2024-02-05", status: "active" },
-    { id: 4, name: "Sony", category: "Electronics", productsCount: 31, createdAt: "2024-02-10", status: "active" },
-    { id: 5, name: "Canon", category: "Cameras", productsCount: 18, createdAt: "2024-02-15", status: "inactive" },
-  ]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
     name: "",
-    category: "",
   });
 
-  const categories = ["Electronics", "Fashion", "Cameras", "Sports", "Home", "Gaming"];
+  useEffect(() => {
+    loadBrands();
+  }, []);
+
+  const loadBrands = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getAllBrands();
+      if (response.status && response.data) {
+        setBrands(response.data);
+      } else {
+        toast.error(response.message || "Unable to load brands. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error loading brands:", error);
+      toast.error(
+        error instanceof Error && error.message 
+          ? error.message 
+          : "Network error. Please check your connection and try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filteredBrands = brands.filter((brand) =>
-    brand.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    brand.category.toLowerCase().includes(searchQuery.toLowerCase())
+    brand.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleAddBrand = () => {
-    if (!formData.name.trim() || !formData.category) {
-      toast.error("Please fill in all fields");
+  const handleAddBrand = async () => {
+    if (!formData.name.trim()) {
+      toast.error("Brand name is required");
       return;
     }
 
-    const newBrand: Brand = {
-      id: brands.length + 1,
-      name: formData.name,
-      category: formData.category,
-      productsCount: 0,
-      createdAt: new Date().toISOString().split("T")[0],
-      status: "active",
-    };
-
-    setBrands([...brands, newBrand]);
-    setFormData({ name: "", category: "" });
-    setShowAddDialog(false);
-    toast.success("Brand added successfully!");
-  };
-
-  const handleEditBrand = () => {
-    if (!editingBrand || !formData.name.trim() || !formData.category) {
-      toast.error("Please fill in all fields");
+    if (formData.name.trim().length < 2) {
+      toast.error("Brand name must be at least 2 characters long");
       return;
     }
 
-    setBrands(
-      brands.map((brand) =>
-        brand.id === editingBrand.id
-          ? { ...brand, name: formData.name, category: formData.category }
-          : brand
-      )
-    );
-
-    setEditingBrand(null);
-    setFormData({ name: "", category: "" });
-    toast.success("Brand updated successfully!");
+    try {
+      setIsSubmitting(true);
+      const response = await addBrand(formData.name.trim());
+      if (response.status) {
+        toast.success("Brand added successfully!");
+        setFormData({ name: "" });
+        setShowAddDialog(false);
+        await loadBrands();
+      } else {
+        toast.error(response.message || "Unable to add brand. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error adding brand:", error);
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Network error. Please check your connection and try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDeleteBrand = (id: number) => {
-    setBrands(brands.filter((brand) => brand.id !== id));
-    toast.success("Brand deleted successfully!");
+  const handleEditBrand = async () => {
+    if (!editingBrand || !formData.name.trim()) {
+      toast.error("Brand name is required");
+      return;
+    }
+
+    if (formData.name.trim().length < 2) {
+      toast.error("Brand name must be at least 2 characters long");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await updateBrand(editingBrand.id.toString(), formData.name.trim());
+      if (response.status) {
+        toast.success("Brand updated successfully!");
+        setEditingBrand(null);
+        setFormData({ name: "" });
+        await loadBrands();
+      } else {
+        toast.error(response.message || "Unable to update brand. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error updating brand:", error);
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Network error. Please check your connection and try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const toggleStatus = (id: number) => {
-    setBrands(
-      brands.map((brand) =>
-        brand.id === id
-          ? { ...brand, status: brand.status === "active" ? "inactive" : "active" }
-          : brand
-      )
-    );
+  const handleDeleteBrand = async (id: number, name: string) => {
+    if (!confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await deleteBrand(id.toString());
+      if (response.status) {
+        toast.success("Brand deleted successfully!");
+        await loadBrands();
+      } else {
+        toast.error(response.message || "Unable to delete brand. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting brand:", error);
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Network error. Please check your connection and try again."
+      );
+    }
   };
 
   const openEditDialog = (brand: Brand) => {
     setEditingBrand(brand);
-    setFormData({ name: brand.name, category: brand.category });
+    setFormData({ name: brand.name });
   };
 
   const closeDialog = () => {
     setShowAddDialog(false);
     setEditingBrand(null);
-    setFormData({ name: "", category: "" });
+    setFormData({ name: "" });
   };
 
   return (
@@ -175,19 +227,16 @@ export default function BrandsPage() {
               <thead className="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
                 <tr>
                   <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
+                    ID
+                  </th>
+                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
                     Brand Name
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Category
+                    Created At
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Products
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Created
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Status
+                    Updated At
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
                     Actions
@@ -201,6 +250,11 @@ export default function BrandsPage() {
                     className="hover:bg-background-light dark:hover:bg-background-dark transition-colors"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm font-bold text-text-main-light dark:text-text-main-dark">
+                        {brand.id}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="flex items-center justify-center size-10 rounded-xl bg-primary/10 text-primary font-bold">
                           {brand.name.charAt(0)}
@@ -212,30 +266,29 @@ export default function BrandsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-                        {brand.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-bold text-text-main-light dark:text-text-main-dark">
-                        {brand.productsCount}
+                        {new Date(brand.createdAt).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric', 
+                          year: 'numeric' 
+                        }) + ' at ' + new Date(brand.createdAt).toLocaleTimeString('en-US', { 
+                          hour: 'numeric', 
+                          minute: '2-digit', 
+                          hour12: true 
+                        })}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-                        {new Date(brand.createdAt).toLocaleDateString()}
+                        {new Date(brand.updatedAt).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric', 
+                          year: 'numeric' 
+                        }) + ' at ' + new Date(brand.updatedAt).toLocaleTimeString('en-US', { 
+                          hour: 'numeric', 
+                          minute: '2-digit', 
+                          hour12: true 
+                        })}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => toggleStatus(brand.id)}
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          brand.status === "active"
-                            ? "bg-green-500/10 text-green-500"
-                            : "bg-gray-500/10 text-gray-500"
-                        }`}
-                      >
-                        {brand.status}
-                      </button>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-2">
@@ -247,7 +300,7 @@ export default function BrandsPage() {
                           <span className="material-symbols-outlined text-xl">edit</span>
                         </button>
                         <button
-                          onClick={() => handleDeleteBrand(brand.id)}
+                          onClick={() => handleDeleteBrand(brand.id, brand.name)}
                           className="p-2 rounded-lg hover:bg-background-light dark:hover:bg-background-dark text-text-secondary-light hover:text-red-500 transition-colors"
                           title="Delete brand"
                         >
@@ -287,36 +340,28 @@ export default function BrandsPage() {
                 className="w-full rounded-xl border border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark text-text-main-light dark:text-text-main-dark placeholder-text-secondary-light/60 px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm"
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-bold text-text-main-light dark:text-text-main-dark ml-1">
-                Category
-              </label>
-              <select
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full rounded-xl border border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark text-text-main-light dark:text-text-main-dark px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm appearance-none cursor-pointer"
-              >
-                <option value="">Select Category</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
           <DialogFooter className="gap-3">
             <button
               onClick={closeDialog}
-              className="flex-1 px-4 py-3 rounded-xl border border-border-light dark:border-border-dark text-text-secondary-light dark:text-text-secondary-dark hover:bg-background-light dark:hover:bg-background-dark font-bold transition-all"
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-3 rounded-xl border border-border-light dark:border-border-dark text-text-secondary-light dark:text-text-secondary-dark hover:bg-background-light dark:hover:bg-background-dark font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               onClick={editingBrand ? handleEditBrand : handleAddBrand}
-              className="flex-1 px-4 py-3 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/30 transition-all"
+              disabled={isSubmitting || !formData.name.trim()}
+              className="flex-1 px-4 py-3 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {editingBrand ? "Update" : "Add Brand"}
+              {isSubmitting ? (
+                <>
+                  <span className="material-symbols-outlined animate-spin text-xl">progress_activity</span>
+                  {editingBrand ? "Updating..." : "Adding..."}
+                </>
+              ) : (
+                <>{editingBrand ? "Update" : "Add Brand"}</>
+              )}
             </button>
           </DialogFooter>
         </DialogContent>
