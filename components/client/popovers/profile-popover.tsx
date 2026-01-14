@@ -67,10 +67,6 @@ export function ProfilePopover({ isDesktop }: ProfilePopoverProps) {
       </PopoverTrigger>
       <PopoverContent align="end" className="w-56 p-0">
         <div className="flex flex-col">
-          <Link href={"/profile"} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left">
-            <span className="material-symbols-outlined text-[20px]">person</span>
-            Profile
-          </Link>
           <Link href={"/dashboard"} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left">
             <span className="material-symbols-outlined text-[20px]">dashboard</span>
             Dashboard

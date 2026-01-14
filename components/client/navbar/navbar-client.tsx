@@ -35,33 +35,24 @@ export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex flex-1 justify-center gap-10">
-          <a
+          <Link
             className="group flex items-center gap-2 text-sm font-semibold text-text-secondary hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors"
-            href="#"
+            href="/messages"
           >
             <span className="material-symbols-outlined text-[22px] text-gray-400 group-hover:text-primary transition-colors">
               chat_bubble
             </span>
             Messages
-          </a>
-          <a
+          </Link>
+          <Link
             className="group flex items-center gap-2 text-sm font-semibold text-text-secondary hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors"
-            href="#"
+            href="/favorites"
           >
             <span className="material-symbols-outlined text-[22px] text-gray-400 group-hover:text-primary transition-colors">
               favorite
             </span>
             Favorites
-          </a>
-          <a
-            className="group flex items-center gap-2 text-sm font-semibold text-text-secondary hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors"
-            href="#"
-          >
-            <span className="material-symbols-outlined text-[22px] text-gray-400 group-hover:text-primary transition-colors">
-              person
-            </span>
-            Profile
-          </a>
+          </Link>
         </nav>
 
         {/* Desktop Right Section */}
@@ -130,30 +121,22 @@ export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
           <div className="flex-1 overflow-y-auto h-full flex flex-col">
             {/* Mobile Menu Items */}
             <nav className="flex flex-col gap-1 px-3 py-4">
-              <a
+              <Link
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:text-primary hover:bg-primary/5 dark:text-gray-400 dark:hover:text-primary dark:hover:bg-primary/10 transition-colors font-semibold"
-                href="#"
+                href="/messages"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <span className="material-symbols-outlined text-[22px]">chat_bubble</span>
                 Messages
-              </a>
-              <a
+              </Link>
+              <Link
                 className="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:text-primary hover:bg-primary/5 dark:text-gray-400 dark:hover:text-primary dark:hover:bg-primary/10 transition-colors font-semibold"
-                href="#"
+                href="/favorites"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <span className="material-symbols-outlined text-[22px]">favorite</span>
                 Favorites
-              </a>
-              <a
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:text-primary hover:bg-primary/5 dark:text-gray-400 dark:hover:text-primary dark:hover:bg-primary/10 transition-colors font-semibold"
-                href="#"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <span className="material-symbols-outlined text-[22px]">person</span>
-                Profile
-              </a>
+              </Link>
             </nav>
 
             {/* Mobile Auth Section */}
@@ -179,10 +162,10 @@ export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
             {/* Mobile Sell Product Button */}
             {isLoggedIn && (
               <div className="px-4 py-2">
-                <button className="w-full flex items-center justify-center gap-2 h-11 rounded-lg bg-primary px-6 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-px hover:bg-primary-hover hover:shadow-primary/30 active:translate-y-px">
+                <Link href={"/sell"} className="w-full flex items-center justify-center gap-2 h-11 rounded-lg bg-primary px-6 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-px hover:bg-primary-hover hover:shadow-primary/30 active:translate-y-px">
                   <span className="material-symbols-outlined text-[20px]">add</span>
                   <span>Sell Product</span>
-                </button>
+                </Link>
               </div>
             )}
 
