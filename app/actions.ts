@@ -137,3 +137,64 @@ export async function deleteBrand(id: string) {
   }
   return responseData;
 }
+
+// Model Management Actions
+export async function getAllModels() {
+  const response = await apiFetch(`${baseUrl}/model`, {
+    method: 'GET',
+  });
+
+  await handleRedirection(response);
+  const responseData = await response.json();
+
+  if (!responseData.status) {
+    throw new Error(responseData.message || 'Failed to fetch models');
+  }
+  return responseData;
+}
+
+export async function addModel(name: string, brandId: number) {
+  const response = await apiFetch(`${baseUrl}/model`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, brandId }),
+  });
+
+  await handleRedirection(response);
+  const responseData = await response.json();
+
+  if (!responseData.status) {
+    throw new Error(responseData.message || 'Failed to add model');
+  }
+  return responseData;
+}
+
+export async function updateModel(id: string, name: string, brandId: number) {
+  const response = await apiFetch(`${baseUrl}/model`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, name, brandId }),
+  });
+
+  await handleRedirection(response);
+  const responseData = await response.json();
+
+  if (!responseData.status) {
+    throw new Error(responseData.message || 'Failed to update model');
+  }
+  return responseData;
+}
+
+export async function deleteModel(id: string) {
+  const response = await apiFetch(`${baseUrl}/model?id=${id}`, {
+    method: 'DELETE',
+  });
+
+  await handleRedirection(response);
+  const responseData = await response.json();
+
+  if (!responseData.status) {
+    throw new Error(responseData.message || 'Failed to delete model');
+  }
+  return responseData;
+}

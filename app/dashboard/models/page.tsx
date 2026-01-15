@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { getAllModels, addModel, updateModel, deleteModel, getAllBrands } from "@/app/actions";
 import {
   Dialog,
   DialogContent,
@@ -10,112 +11,193 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/client/ui/dialog";
+import { ConfirmationDialog } from "@/components/client/dialogs/confirmation-dialog";
 
 interface Model {
   id: number;
   name: string;
-  brand: string;
-  category: string;
-  productsCount: number;
+  brandId: number;
+  brandName: string;
   createdAt: string;
-  status: "active" | "inactive";
+  updatedAt: string;
+}
+
+interface Brand {
+  id: number;
+  name: string;
 }
 
 export default function ModelsPage() {
-  const [models, setModels] = useState<Model[]>([
-    { id: 1, name: "iPhone 13", brand: "Apple", category: "Mobile", productsCount: 28, createdAt: "2024-01-15", status: "active" },
-    { id: 2, name: "Galaxy S21", brand: "Samsung", category: "Mobile", productsCount: 22, createdAt: "2024-01-20", status: "active" },
-    { id: 3, name: "Air Max", brand: "Nike", category: "Fashion", productsCount: 15, createdAt: "2024-02-05", status: "active" },
-    { id: 4, name: "PlayStation 5", brand: "Sony", category: "Gaming", productsCount: 19, createdAt: "2024-02-10", status: "active" },
-    { id: 5, name: "EOS R5", brand: "Canon", category: "Cameras", productsCount: 12, createdAt: "2024-02-15", status: "inactive" },
-    { id: 6, name: "MacBook Pro", brand: "Apple", category: "Computers", productsCount: 31, createdAt: "2024-02-20", status: "active" },
-  ]);
+  const [models, setModels] = useState<Model[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingModel, setEditingModel] = useState<Model | null>(null);
+  const [deletingModel, setDeletingModel] = useState<Model | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterBrand, setFilterBrand] = useState("");
   const [formData, setFormData] = useState({
     name: "",
-    brand: "",
-    category: "",
+    brandId: "",
   });
 
-  const brands = ["Apple", "Samsung", "Nike", "Sony", "Canon", "Dell", "HP"];
-  const categories = ["Mobile", "Computers", "Fashion", "Cameras", "Sports", "Gaming"];
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setIsLoading(true);
+      const [modelsResponse, brandsResponse] = await Promise.all([
+        getAllModels(),
+        getAllBrands(),
+      ]);
+
+      if (modelsResponse.status && modelsResponse.data) {
+        setModels(modelsResponse.data);
+      } else {
+        toast.error(modelsResponse.message || "Unable to load models. Please try again.");
+      }
+
+      if (brandsResponse.status && brandsResponse.data) {
+        setBrands(brandsResponse.data);
+      } else {
+        toast.error(brandsResponse.message || "Unable to load brands. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error loading data:", error);
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Network error. Please check your connection and try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filteredModels = models.filter((model) => {
     const matchesSearch = model.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      model.brand.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesBrand = !filterBrand || model.brand === filterBrand;
+      model.brandName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesBrand = !filterBrand || model.brandName === filterBrand;
     return matchesSearch && matchesBrand;
   });
 
-  const handleAddModel = () => {
-    if (!formData.name.trim() || !formData.brand || !formData.category) {
-      toast.error("Please fill in all fields");
+  const handleAddModel = async () => {
+    if (!formData.name.trim()) {
+      toast.error("Model name is required");
       return;
     }
 
-    const newModel: Model = {
-      id: models.length + 1,
-      name: formData.name,
-      brand: formData.brand,
-      category: formData.category,
-      productsCount: 0,
-      createdAt: new Date().toISOString().split("T")[0],
-      status: "active",
-    };
-
-    setModels([...models, newModel]);
-    setFormData({ name: "", brand: "", category: "" });
-    setShowAddDialog(false);
-    toast.success("Model added successfully!");
-  };
-
-  const handleEditModel = () => {
-    if (!editingModel || !formData.name.trim() || !formData.brand || !formData.category) {
-      toast.error("Please fill in all fields");
+    if (!formData.brandId) {
+      toast.error("Please select a brand");
       return;
     }
 
-    setModels(
-      models.map((model) =>
-        model.id === editingModel.id
-          ? { ...model, name: formData.name, brand: formData.brand, category: formData.category }
-          : model
-      )
-    );
+    if (formData.name.trim().length < 2) {
+      toast.error("Model name must be at least 2 characters long");
+      return;
+    }
 
-    setEditingModel(null);
-    setFormData({ name: "", brand: "", category: "" });
-    toast.success("Model updated successfully!");
+    try {
+      setIsSubmitting(true);
+      const response = await addModel(formData.name.trim(), parseInt(formData.brandId));
+      if (response.status) {
+        toast.success("Model added successfully!");
+        setFormData({ name: "", brandId: "" });
+        setShowAddDialog(false);
+        await loadData();
+      } else {
+        toast.error(response.message || "Unable to add model. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error adding model:", error);
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Network error. Please check your connection and try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDeleteModel = (id: number) => {
-    setModels(models.filter((model) => model.id !== id));
-    toast.success("Model deleted successfully!");
+  const handleEditModel = async () => {
+    if (!editingModel || !formData.name.trim()) {
+      toast.error("Model name is required");
+      return;
+    }
+
+    if (!formData.brandId) {
+      toast.error("Please select a brand");
+      return;
+    }
+
+    if (formData.name.trim().length < 2) {
+      toast.error("Model name must be at least 2 characters long");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const response = await updateModel(
+        editingModel.id.toString(),
+        formData.name.trim(),
+        parseInt(formData.brandId)
+      );
+      if (response.status) {
+        toast.success("Model updated successfully!");
+        setEditingModel(null);
+        setFormData({ name: "", brandId: "" });
+        await loadData();
+      } else {
+        toast.error(response.message || "Unable to update model. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error updating model:", error);
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Network error. Please check your connection and try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const toggleStatus = (id: number) => {
-    setModels(
-      models.map((model) =>
-        model.id === id
-          ? { ...model, status: model.status === "active" ? "inactive" : "active" }
-          : model
-      )
-    );
+  const handleDeleteModel = async () => {
+    if (!deletingModel) return;
+
+    try {
+      const response = await deleteModel(deletingModel.id.toString());
+      if (response.status) {
+        toast.success("Model deleted successfully!");
+        setDeletingModel(null);
+        await loadData();
+      } else {
+        toast.error(response.message || "Unable to delete model. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error deleting model:", error);
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Network error. Please check your connection and try again."
+      );
+    }
   };
 
   const openEditDialog = (model: Model) => {
     setEditingModel(model);
-    setFormData({ name: model.name, brand: model.brand, category: model.category });
+    setFormData({ name: model.name, brandId: model.brandId.toString() });
   };
 
   const closeDialog = () => {
     setShowAddDialog(false);
     setEditingModel(null);
-    setFormData({ name: "", brand: "", category: "" });
+    setFormData({ name: "", brandId: "" });
   };
 
   return (
@@ -169,8 +251,8 @@ export default function ModelsPage() {
             >
               <option value="">All Brands</option>
               {brands.map((brand) => (
-                <option key={brand} value={brand}>
-                  {brand}
+                <option key={brand.id} value={brand.name}>
+                  {brand.name}
                 </option>
               ))}
             </select>
@@ -192,104 +274,138 @@ export default function ModelsPage() {
 
         {/* Models Table */}
         <div className="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-card border border-border-light/50 dark:border-border-dark overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Model Name
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Brand
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Category
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Products
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Created
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border-light dark:divide-border-dark">
-                {filteredModels.map((model) => (
-                  <tr
-                    key={model.id}
-                    className="hover:bg-background-light dark:hover:bg-background-dark transition-colors"
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="flex flex-col items-center gap-4">
+                <span className="material-symbols-outlined animate-spin text-5xl text-primary">
+                  progress_activity
+                </span>
+                <p className="text-text-secondary-light dark:text-text-secondary-dark font-medium">
+                  Loading models...
+                </p>
+              </div>
+            </div>
+          ) : filteredModels.length === 0 ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="flex flex-col items-center gap-4">
+                <span className="material-symbols-outlined text-5xl text-text-secondary-light/30 dark:text-text-secondary-dark/30">
+                  {searchQuery ? "search_off" : "devices"}
+                </span>
+                <p className="text-text-secondary-light dark:text-text-secondary-dark font-medium">
+                  {searchQuery ? "No models found matching your search" : "No models yet"}
+                </p>
+                {!searchQuery && (
+                  <button
+                    onClick={() => setShowAddDialog(true)}
+                    className="mt-2 flex items-center gap-2 bg-primary hover:bg-primary-hover text-white font-bold px-5 py-2.5 rounded-lg shadow-lg shadow-primary/30 transition-all"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center size-10 rounded-xl bg-blue-500/10 text-blue-500 font-bold">
-                          <span className="material-symbols-outlined text-xl">devices</span>
-                        </div>
-                        <span className="font-bold text-text-main-light dark:text-text-main-dark">
-                          {model.name}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary">
-                        {model.brand}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-                        {model.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-bold text-text-main-light dark:text-text-main-dark">
-                        {model.productsCount}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
-                        {new Date(model.createdAt).toLocaleDateString()}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => toggleStatus(model.id)}
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          model.status === "active"
-                            ? "bg-green-500/10 text-green-500"
-                            : "bg-gray-500/10 text-gray-500"
-                        }`}
-                      >
-                        {model.status}
-                      </button>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => openEditDialog(model)}
-                          className="p-2 rounded-lg hover:bg-background-light dark:hover:bg-background-dark text-text-secondary-light hover:text-primary transition-colors"
-                          title="Edit model"
-                        >
-                          <span className="material-symbols-outlined text-xl">edit</span>
-                        </button>
-                        <button
-                          onClick={() => handleDeleteModel(model.id)}
-                          className="p-2 rounded-lg hover:bg-background-light dark:hover:bg-background-dark text-text-secondary-light hover:text-red-500 transition-colors"
-                          title="Delete model"
-                        >
-                          <span className="material-symbols-outlined text-xl">delete</span>
-                        </button>
-                      </div>
-                    </td>
+                    <span className="material-symbols-outlined text-lg">add</span>
+                    Add Your First Model
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
+                      ID
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
+                      Model Name
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
+                      Brand
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
+                      Created At
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
+                      Updated At
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-bold text-text-secondary-light dark:text-text-secondary-dark uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-border-light dark:divide-border-dark">
+                  {filteredModels.map((model) => (
+                    <tr
+                      key={model.id}
+                      className="hover:bg-background-light dark:hover:bg-background-dark transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm font-bold text-text-main-light dark:text-text-main-dark">
+                          {model.id}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center justify-center size-10 rounded-xl bg-blue-500/10 text-blue-500 font-bold">
+                            <span className="material-symbols-outlined text-xl">devices</span>
+                          </div>
+                          <span className="font-bold text-text-main-light dark:text-text-main-dark">
+                            {model.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary">
+                          {model.brandName}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                          {new Date(model.createdAt).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          }) + ' at ' + new Date(model.createdAt).toLocaleTimeString('en-US', { 
+                            hour: 'numeric', 
+                            minute: '2-digit', 
+                            hour12: true 
+                          })}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="text-sm text-text-secondary-light dark:text-text-secondary-dark">
+                          {new Date(model.updatedAt).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          }) + ' at ' + new Date(model.updatedAt).toLocaleTimeString('en-US', { 
+                            hour: 'numeric', 
+                            minute: '2-digit', 
+                            hour12: true 
+                          })}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => openEditDialog(model)}
+                            className="p-2 rounded-lg hover:bg-background-light dark:hover:bg-background-dark text-text-secondary-light hover:text-primary transition-colors"
+                            title="Edit model"
+                          >
+                            <span className="material-symbols-outlined text-xl">edit</span>
+                          </button>
+                          <button
+                            onClick={() => setDeletingModel(model)}
+                            className="p-2 rounded-lg hover:bg-background-light dark:hover:bg-background-dark text-text-secondary-light hover:text-red-500 transition-colors"
+                            title="Delete model"
+                          >
+                            <span className="material-symbols-outlined text-xl">delete</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
 
@@ -322,31 +438,14 @@ export default function ModelsPage() {
                 Brand
               </label>
               <select
-                value={formData.brand}
-                onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                value={formData.brandId}
+                onChange={(e) => setFormData({ ...formData, brandId: e.target.value })}
                 className="w-full rounded-xl border border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark text-text-main-light dark:text-text-main-dark px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm appearance-none cursor-pointer"
               >
                 <option value="">Select Brand</option>
                 {brands.map((brand) => (
-                  <option key={brand} value={brand}>
-                    {brand}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-bold text-text-main-light dark:text-text-main-dark ml-1">
-                Category
-              </label>
-              <select
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full rounded-xl border border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark text-text-main-light dark:text-text-main-dark px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm appearance-none cursor-pointer"
-              >
-                <option value="">Select Category</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
+                  <option key={brand.id} value={brand.id}>
+                    {brand.name}
                   </option>
                 ))}
               </select>
@@ -355,19 +454,40 @@ export default function ModelsPage() {
           <DialogFooter className="gap-3">
             <button
               onClick={closeDialog}
-              className="flex-1 px-4 py-3 rounded-xl border border-border-light dark:border-border-dark text-text-secondary-light dark:text-text-secondary-dark hover:bg-background-light dark:hover:bg-background-dark font-bold transition-all"
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-3 rounded-xl border border-border-light dark:border-border-dark text-text-secondary-light dark:text-text-secondary-dark hover:bg-background-light dark:hover:bg-background-dark font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               onClick={editingModel ? handleEditModel : handleAddModel}
-              className="flex-1 px-4 py-3 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/30 transition-all"
+              disabled={isSubmitting || !formData.name.trim() || !formData.brandId}
+              className="flex-1 px-4 py-3 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold shadow-lg shadow-primary/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {editingModel ? "Update" : "Add Model"}
+              {isSubmitting ? (
+                <>
+                  <span className="material-symbols-outlined animate-spin text-xl">progress_activity</span>
+                  {editingModel ? "Updating..." : "Adding..."}
+                </>
+              ) : (
+                <>{editingModel ? "Update" : "Add Model"}</>
+              )}
             </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        open={!!deletingModel}
+        onOpenChange={(open) => !open && setDeletingModel(null)}
+        onConfirm={handleDeleteModel}
+        title="Delete Model?"
+        description={deletingModel ? `Are you sure you want to delete "${deletingModel.name}"? This action cannot be undone.` : ""}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive={true}
+      />
     </div>
   );
 }
