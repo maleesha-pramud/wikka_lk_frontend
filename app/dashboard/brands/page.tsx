@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/client/ui/dialog";
+import { ConfirmationDialog } from "@/components/client/dialogs/confirmation-dialog";
 
 interface Brand {
   id: number;
@@ -26,6 +27,7 @@ export default function BrandsPage() {
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
+  const [deletingBrand, setDeletingBrand] = useState<Brand | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({
     name: "",
@@ -128,15 +130,14 @@ export default function BrandsPage() {
     }
   };
 
-  const handleDeleteBrand = async (id: number, name: string) => {
-    if (!confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) {
-      return;
-    }
+  const handleDeleteBrand = async () => {
+    if (!deletingBrand) return;
 
     try {
-      const response = await deleteBrand(id.toString());
+      const response = await deleteBrand(deletingBrand.id.toString());
       if (response.status) {
         toast.success("Brand deleted successfully!");
+        setDeletingBrand(null);
         await loadBrands();
       } else {
         toast.error(response.message || "Unable to delete brand. Please try again.");
@@ -332,7 +333,7 @@ export default function BrandsPage() {
                           <span className="material-symbols-outlined text-xl">edit</span>
                         </button>
                         <button
-                          onClick={() => handleDeleteBrand(brand.id, brand.name)}
+                          onClick={() => setDeletingBrand(brand)}
                           className="p-2 rounded-lg hover:bg-background-light dark:hover:bg-background-dark text-text-secondary-light hover:text-red-500 transition-colors"
                           title="Delete brand"
                         >
@@ -399,6 +400,18 @@ export default function BrandsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        open={!!deletingBrand}
+        onOpenChange={(open) => !open && setDeletingBrand(null)}
+        onConfirm={handleDeleteBrand}
+        title="Delete Brand?"
+        description={deletingBrand ? `Are you sure you want to delete "${deletingBrand.name}"? This action cannot be undone.` : ""}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive={true}
+      />
     </div>
   );
 }
