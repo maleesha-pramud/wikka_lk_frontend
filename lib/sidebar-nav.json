@@ -28,7 +28,7 @@
     "label": "Reviews",
     "icon": "star",
     "href": "/dashboard/reviews",
-    "badge": "3"
+    "badge": "0"
   },
   {
     "id": "categories",
