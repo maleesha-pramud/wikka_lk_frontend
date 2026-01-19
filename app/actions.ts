@@ -198,3 +198,64 @@ export async function deleteModel(id: string) {
   }
   return responseData;
 }
+
+// Category Management Actions
+export async function getAllCategories() {
+  const response = await apiFetch(`${baseUrl}/category`, {
+    method: 'GET',
+  });
+
+  await handleRedirection(response);
+  const responseData = await response.json();
+
+  if (!responseData.status) {
+    throw new Error(responseData.message || 'Failed to fetch categories');
+  }
+  return responseData;
+}
+
+export async function addCategory(name: string, icon?: string) {
+  const response = await apiFetch(`${baseUrl}/category`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, icon }),
+  });
+
+  await handleRedirection(response);
+  const responseData = await response.json();
+
+  if (!responseData.status) {
+    throw new Error(responseData.message || 'Failed to add category');
+  }
+  return responseData;
+}
+
+export async function updateCategory(id: string, name: string, icon?: string) {
+  const response = await apiFetch(`${baseUrl}/category`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, name, icon }),
+  });
+
+  await handleRedirection(response);
+  const responseData = await response.json();
+
+  if (!responseData.status) {
+    throw new Error(responseData.message || 'Failed to update category');
+  }
+  return responseData;
+}
+
+export async function deleteCategory(id: string) {
+  const response = await apiFetch(`${baseUrl}/category?id=${id}`, {
+    method: 'DELETE',
+  });
+
+  await handleRedirection(response);
+  const responseData = await response.json();
+
+  if (!responseData.status) {
+    throw new Error(responseData.message || 'Failed to delete category');
+  }
+  return responseData;
+}

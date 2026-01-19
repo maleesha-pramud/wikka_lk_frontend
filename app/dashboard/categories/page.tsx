@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import Image from "next/image";
+import { getAllCategories, addCategory, updateCategory, deleteCategory } from "@/app/actions";
+import * as LucideIcons from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -12,118 +13,111 @@ import {
   DialogTitle,
 } from "@/components/client/ui/dialog";
 
+type LucideIconComponent = React.ComponentType<{ size?: number }>;
+
 interface Category {
   id: number;
   name: string;
   icon: string;
-  iconPreview?: string;
   productsCount: number;
   createdAt: string;
   status: "active" | "inactive";
 }
 
+const POPULAR_ICONS = [
+  'Camera', 'Smartphone', 'Laptop', 'Gamepad2', 'Watch', 'Headphones',
+  'Tv', 'Monitor', 'Keyboard', 'Mouse', 'Speaker', 'Mic',
+  'Shirt', 'ShoppingBag', 'Package', 'Home', 'Car', 'Bike',
+  'Book', 'Briefcase', 'Heart', 'Star', 'Gift', 'Music',
+  'Coffee', 'Pizza', 'Utensils', 'Dumbbell', 'Palette', 'Wrench',
+  'Scissors', 'Paintbrush', 'Glasses', 'Baby', 'Dog', 'Cat', 'Activity'
+];
+
 export default function CategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>([
-    { id: 1, name: "Cameras", icon: "photo_camera", productsCount: 45, createdAt: "2024-01-15", status: "active" },
-    { id: 2, name: "Mobile", icon: "smartphone", productsCount: 128, createdAt: "2024-01-20", status: "active" },
-    { id: 3, name: "Fashion", icon: "checkroom", productsCount: 92, createdAt: "2024-02-05", status: "active" },
-    { id: 4, name: "Computers", icon: "computer", productsCount: 67, createdAt: "2024-02-10", status: "active" },
-    { id: 5, name: "Sports", icon: "sports_soccer", productsCount: 34, createdAt: "2024-02-15", status: "inactive" },
-    { id: 6, name: "Gaming", icon: "videogame_asset", productsCount: 56, createdAt: "2024-02-20", status: "active" },
-  ]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [iconPreview, setIconPreview] = useState<string>("");
-  const [iconFile, setIconFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [iconSearch, setIconSearch] = useState("");
   const [formData, setFormData] = useState({
     name: "",
-    icon: "",
+    icon: "Package",
   });
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllCategories();
+      if (response.status && response.data) {
+        setCategories(response.data);
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to fetch categories");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredCategories = categories.filter((category) =>
     category.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleIconUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please upload an image file");
-      return;
-    }
 
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("Image size must be less than 2MB");
-      return;
-    }
-
-    setIconFile(file);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      setIconPreview(result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleAddCategory = () => {
+  const handleAddCategory = async () => {
     if (!formData.name.trim()) {
       toast.error("Please enter a category name");
       return;
     }
 
-    if (!formData.icon.trim() && !iconPreview) {
-      toast.error("Please provide an icon (Material Symbol name or upload image)");
-      return;
+    try {
+      const response = await addCategory(formData.name, formData.icon);
+      if (response.status) {
+        toast.success("Category added successfully!");
+        resetForm();
+        setShowAddDialog(false);
+        await fetchCategories();
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to add category");
     }
-
-    const newCategory: Category = {
-      id: categories.length + 1,
-      name: formData.name,
-      icon: formData.icon || "category",
-      iconPreview: iconPreview || undefined,
-      productsCount: 0,
-      createdAt: new Date().toISOString().split("T")[0],
-      status: "active",
-    };
-
-    setCategories([...categories, newCategory]);
-    resetForm();
-    setShowAddDialog(false);
-    toast.success("Category added successfully!");
   };
 
-  const handleEditCategory = () => {
+  const handleEditCategory = async () => {
     if (!editingCategory || !formData.name.trim()) {
       toast.error("Please enter a category name");
       return;
     }
 
-    setCategories(
-      categories.map((category) =>
-        category.id === editingCategory.id
-          ? {
-              ...category,
-              name: formData.name,
-              icon: formData.icon || category.icon,
-              iconPreview: iconPreview || category.iconPreview,
-            }
-          : category
-      )
-    );
-
-    resetForm();
-    setEditingCategory(null);
-    toast.success("Category updated successfully!");
+    try {
+      const response = await updateCategory(editingCategory.id.toString(), formData.name, formData.icon);
+      if (response.status) {
+        toast.success("Category updated successfully!");
+        resetForm();
+        setEditingCategory(null);
+        await fetchCategories();
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update category");
+    }
   };
 
-  const handleDeleteCategory = (id: number) => {
-    setCategories(categories.filter((category) => category.id !== id));
-    toast.success("Category deleted successfully!");
+  const handleDeleteCategory = async (id: number) => {
+    try {
+      const response = await deleteCategory(id.toString());
+      if (response.status) {
+        toast.success("Category deleted successfully!");
+        await fetchCategories();
+      }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to delete category");
+    }
   };
 
   const toggleStatus = (id: number) => {
@@ -139,18 +133,11 @@ export default function CategoriesPage() {
   const openEditDialog = (category: Category) => {
     setEditingCategory(category);
     setFormData({ name: category.name, icon: category.icon });
-    if (category.iconPreview) {
-      setIconPreview(category.iconPreview);
-    }
   };
 
   const resetForm = () => {
-    setFormData({ name: "", icon: "" });
-    setIconPreview("");
-    setIconFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    setFormData({ name: "", icon: "Package" });
+    setIconSearch("");
   };
 
   const closeDialog = () => {
@@ -218,25 +205,38 @@ export default function CategoriesPage() {
         </div>
 
         {/* Categories Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredCategories.map((category) => (
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="flex flex-col items-center gap-3">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              <p className="text-text-secondary-light dark:text-text-secondary-dark">Loading categories...</p>
+            </div>
+          </div>
+        ) : filteredCategories.length === 0 ? (
+          <div className="col-span-full flex flex-col items-center justify-center py-20">
+            <span className="material-symbols-outlined text-6xl text-text-secondary-light/30 dark:text-text-secondary-dark/30 mb-4">
+              widgets
+            </span>
+            <h3 className="text-xl font-bold text-text-main-light dark:text-text-main-dark mb-2">
+              No categories found
+            </h3>
+            <p className="text-text-secondary-light dark:text-text-secondary-dark mb-6">
+              {searchQuery ? "Try adjusting your search" : "Get started by adding your first category"}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredCategories.map((category) => (
             <div
               key={category.id}
               className="bg-surface-light dark:bg-surface-dark rounded-2xl p-6 shadow-card border border-border-light/50 dark:border-border-dark hover:shadow-hover transition-all group"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center justify-center size-16 rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
-                  {category.iconPreview ? (
-                    <Image
-                      src={category.iconPreview}
-                      alt={category.name}
-                      width={48}
-                      height={48}
-                      className="rounded-xl object-cover"
-                    />
-                  ) : (
-                    <span className="material-symbols-outlined text-4xl">{category.icon}</span>
-                  )}
+                  {(() => {
+                    const IconComponent = (LucideIcons as unknown as Record<string, LucideIconComponent>)[category.icon] || LucideIcons.Package;
+                    return <IconComponent size={40} />;
+                  })()}
                 </div>
                 <button
                   onClick={() => toggleStatus(category.id)}
@@ -276,6 +276,7 @@ export default function CategoriesPage() {
             </div>
           ))}
         </div>
+        )}
       </div>
 
       {/* Add/Edit Dialog */}
@@ -305,85 +306,72 @@ export default function CategoriesPage() {
             
             <div className="flex flex-col gap-2">
               <label className="text-sm font-bold text-text-main-light dark:text-text-main-dark ml-1">
-                Icon
+                Select Icon
               </label>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-2">
-                  <input
-                    type="text"
-                    placeholder="Material icon name"
-                    value={formData.icon}
-                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    className="w-full rounded-xl border border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark text-text-main-light dark:text-text-main-dark placeholder-text-secondary-light/60 px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm text-sm"
-                  />
-                  <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark ml-1">
-                    e.g. camera, phone
+              
+              {/* Selected Icon Preview */}
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark">
+                <div className="flex items-center justify-center size-12 rounded-xl bg-primary/10 text-primary">
+                  {(() => {
+                    const IconComponent = (LucideIcons as unknown as Record<string, LucideIconComponent>)[formData.icon] || LucideIcons.Package;
+                    return <IconComponent size={28} />;
+                  })()}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-text-main-light dark:text-text-main-dark">
+                    {formData.icon}
+                  </p>
+                  <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">
+                    Selected icon
                   </p>
                 </div>
-                <div className="flex flex-col gap-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleIconUpload}
-                    className="hidden"
-                    id="icon-upload"
-                  />
-                  <label
-                    htmlFor="icon-upload"
-                    className="flex flex-col items-center justify-center h-full min-h-[60px] rounded-xl border-2 border-dashed border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark hover:border-primary cursor-pointer transition-all"
-                  >
-                    <span className="material-symbols-outlined text-primary text-2xl">
-                      upload
-                    </span>
-                    <span className="text-xs text-text-secondary-light dark:text-text-secondary-dark mt-1">
-                      Upload Icon
-                    </span>
-                  </label>
-                  <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark ml-1">
-                    or upload image
-                  </p>
+              </div>
+
+              {/* Icon Search */}
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary-light dark:text-text-secondary-dark">
+                  {(() => {
+                    const SearchIcon = LucideIcons.Search;
+                    return <SearchIcon size={18} />;
+                  })()}
+                </span>
+                <input
+                  type="text"
+                  placeholder="Search icons..."
+                  value={iconSearch}
+                  onChange={(e) => setIconSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark text-text-main-light dark:text-text-main-dark placeholder-text-secondary-light/60 text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                />
+              </div>
+
+              {/* Icon Grid */}
+              <div className="max-h-75 overflow-y-auto rounded-xl border border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark p-3">
+                <div className="grid grid-cols-6 gap-2">
+                  {POPULAR_ICONS
+                    .filter(icon => icon.toLowerCase().includes(iconSearch.toLowerCase()))
+                    .map((iconName) => {
+                      const IconComponent = (LucideIcons as unknown as Record<string, LucideIconComponent>)[iconName];
+                      if (!IconComponent) return null;
+                      const isSelected = formData.icon === iconName;
+                      return (
+                        <button
+                          key={iconName}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, icon: iconName })}
+                          className={`flex items-center justify-center size-12 rounded-lg transition-all ${
+                            isSelected
+                              ? "bg-primary text-white shadow-lg scale-105"
+                              : "bg-surface-light dark:bg-surface-dark hover:bg-primary/10 dark:hover:bg-primary/20 text-text-main-light dark:text-text-main-dark"
+                          }`}
+                          title={iconName}
+                        >
+                          <IconComponent size={24} />
+                        </button>
+                      );
+                    })}
                 </div>
               </div>
             </div>
-
-            {/* Icon Preview */}
-            {(iconPreview || formData.icon) && (
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-text-main-light dark:text-text-main-dark ml-1">
-                  Preview
-                </label>
-                <div className="flex items-center justify-center p-6 rounded-xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark">
-                  {iconPreview ? (
-                    <div className="relative">
-                      <Image
-                        src={iconPreview}
-                        alt="Icon preview"
-                        width={80}
-                        height={80}
-                        className="rounded-xl object-cover"
-                      />
-                      <button
-                        onClick={() => {
-                          setIconPreview("");
-                          setIconFile(null);
-                          if (fileInputRef.current) {
-                            fileInputRef.current.value = "";
-                          }
-                        }}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-sm">close</span>
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center size-20 rounded-2xl bg-primary/10 text-primary">
-                      <span className="material-symbols-outlined text-5xl">{formData.icon}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </div>
           <DialogFooter className="gap-3">
             <button
