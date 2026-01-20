@@ -70,8 +70,6 @@ export default function CategoriesPage() {
     category.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-
-
   const handleAddCategory = async () => {
     if (!formData.name.trim()) {
       toast.error("Please enter a category name");
