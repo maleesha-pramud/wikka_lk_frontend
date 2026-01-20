@@ -44,7 +44,7 @@ export default function BrandsPage() {
       if (response.status) {
         setBrands(response.data as Brand[]);
       } else {
-        toast.error(response.error || "Unable to load brands. Please try again.");
+        toast.error(response.message || "Unable to load brands. Please try again.");
       }
     } catch (error) {
       console.error("Error loading brands:", error);
@@ -82,7 +82,7 @@ export default function BrandsPage() {
         setShowAddDialog(false);
         await loadBrands();
       } else {
-        toast.error(response.error || "Unable to add brand. Please try again.");
+        toast.error(response.message || "Unable to add brand. Please try again.");
       }
     } catch (error) {
       console.error("Error adding brand:", error);
@@ -116,7 +116,7 @@ export default function BrandsPage() {
         setFormData({ name: "" });
         await loadBrands();
       } else {
-        toast.error(response.error || "Unable to update brand. Please try again.");
+        toast.error(response.message || "Unable to update brand. Please try again.");
       }
     } catch (error) {
       console.error("Error updating brand:", error);
@@ -140,7 +140,7 @@ export default function BrandsPage() {
         setDeletingBrand(null);
         await loadBrands();
       } else {
-        toast.error(response.error || "Unable to delete brand. Please try again.");
+        toast.error(response.message || "Unable to delete brand. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting brand:", error);

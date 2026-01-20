@@ -71,7 +71,7 @@ export function AuthDialog({ open, onOpenChange, mode, onModeChange }: AuthDialo
           setEmail("");
           setPassword("");
         } else {
-          toast.error(response.error || "Unable to login. Please try again.");
+          toast.error(response.message || "Unable to login. Please try again.");
         }
       } catch (error) {
         console.error("Login failed:", error);
@@ -126,7 +126,7 @@ export function AuthDialog({ open, onOpenChange, mode, onModeChange }: AuthDialo
           setAddress("");
           setAccountType("buyer");
         } else {
-          toast.error(response.error || "Unable to register. Please try again.");
+          toast.error(response.message || "Unable to register. Please try again.");
         }
       } catch (error) {
         console.error("Registration failed:", error);

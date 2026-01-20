@@ -58,13 +58,13 @@ export default function ModelsPage() {
       if (modelsResponse.status) {
         setModels(modelsResponse.data as Model[]);
       } else {
-        toast.error(modelsResponse.error || "Unable to load models. Please try again.");
+        toast.error(modelsResponse.message || "Unable to load models. Please try again.");
       }
 
       if (brandsResponse.status) {
         setBrands(brandsResponse.data as Brand[]);
       } else {
-        toast.error(brandsResponse.error || "Unable to load brands. Please try again.");
+        toast.error(brandsResponse.message || "Unable to load brands. Please try again.");
       }
     } catch (error) {
       console.error("Error loading data:", error);
@@ -110,7 +110,7 @@ export default function ModelsPage() {
         setShowAddDialog(false);
         await loadData();
       } else {
-        toast.error(response.error || "Unable to add model. Please try again.");
+        toast.error(response.message || "Unable to add model. Please try again.");
       }
     } catch (error) {
       console.error("Error adding model:", error);
@@ -153,7 +153,7 @@ export default function ModelsPage() {
         setFormData({ name: "", brandId: "" });
         await loadData();
       } else {
-        toast.error(response.error || "Unable to update model. Please try again.");
+        toast.error(response.message || "Unable to update model. Please try again.");
       }
     } catch (error) {
       console.error("Error updating model:", error);
@@ -177,7 +177,7 @@ export default function ModelsPage() {
         setDeletingModel(null);
         await loadData();
       } else {
-        toast.error(response.error || "Unable to delete model. Please try again.");
+        toast.error(response.message || "Unable to delete model. Please try again.");
       }
     } catch (error) {
       console.error("Error deleting model:", error);

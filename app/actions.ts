@@ -7,10 +7,6 @@ import { redirect } from 'next/navigation';
 const baseUrl = process.env.BACKEND_BASE_URL;
 
 // Types
-type ActionResult<T = unknown> = 
-  | { status: true; data: T }
-  | { status: false; error: string };
-
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 interface ApiRequestOptions {
@@ -53,7 +49,7 @@ async function handleAction<T = unknown>(
   options: ApiRequestOptions,
   errorMessage: string,
   shouldSetCookie = false
-): Promise<ActionResult<T>> {
+): Promise<ApiResponse<T>> {
   try {
     const url = options.params 
       ? `${baseUrl}${endpoint}?${new URLSearchParams(options.params).toString()}`
@@ -77,20 +73,16 @@ async function handleAction<T = unknown>(
 
     const responseData: ApiResponse<T> = await response.json();
     
-    if (!responseData.status) {
-      return { status: false, error: responseData.message || errorMessage };
-    }
-    
-    return { status: true, data: responseData as T };
+    return responseData;
   } catch (error) {
     return { 
       status: false, 
-      error: error instanceof Error ? error.message : 'An unexpected error occurred' 
+      message: error instanceof Error ? error.message : 'An unexpected error occurred' 
     };
   }
 }
 
-export async function loginUser(email: string, password: string): Promise<ActionResult> {
+export async function loginUser(email: string, password: string): Promise<ApiResponse> {
   return handleAction('/user/login', {
     method: 'POST',
     body: { email, password },
@@ -103,7 +95,7 @@ export async function registerUser(
   address: string, 
   password: string, 
   accountType: 'buyer' | 'seller'
-): Promise<ActionResult> {
+): Promise<ApiResponse> {
   return handleAction('/user', {
     method: 'POST',
     body: { 
@@ -116,7 +108,7 @@ export async function registerUser(
   }, 'Registration failed', true);
 }
 
-export async function logoutUser(): Promise<ActionResult> {
+export async function logoutUser(): Promise<ApiResponse> {
   const result = await handleAction('/user/logout', {
     method: 'GET',
   }, 'Logout failed');
@@ -124,30 +116,29 @@ export async function logoutUser(): Promise<ActionResult> {
   if (result.status) {
     (await cookies()).delete('JSESSIONID');
   }
-  
   return result;
 }
 
 // Brand Management Actions
-export async function getAllBrands(): Promise<ActionResult> {
+export async function getAllBrands(): Promise<ApiResponse> {
   return handleAction('/brand', { method: 'GET' }, 'Failed to fetch brands');
 }
 
-export async function addBrand(name: string): Promise<ActionResult> {
+export async function addBrand(name: string): Promise<ApiResponse> {
   return handleAction('/brand', {
     method: 'POST',
     body: { name },
   }, 'Failed to add brand');
 }
 
-export async function updateBrand(id: string, name: string): Promise<ActionResult> {
+export async function updateBrand(id: string, name: string): Promise<ApiResponse> {
   return handleAction('/brand', {
     method: 'PUT',
     body: { id, name },
   }, 'Failed to update brand');
 }
 
-export async function deleteBrand(id: string): Promise<ActionResult> {
+export async function deleteBrand(id: string): Promise<ApiResponse> {
   return handleAction('/brand', {
     method: 'DELETE',
     params: { id },
@@ -155,25 +146,25 @@ export async function deleteBrand(id: string): Promise<ActionResult> {
 }
 
 // Model Management Actions
-export async function getAllModels(): Promise<ActionResult> {
+export async function getAllModels(): Promise<ApiResponse> {
   return handleAction('/model', { method: 'GET' }, 'Failed to fetch models');
 }
 
-export async function addModel(name: string, brandId: number): Promise<ActionResult> {
+export async function addModel(name: string, brandId: number): Promise<ApiResponse> {
   return handleAction('/model', {
     method: 'POST',
     body: { name, brandId },
   }, 'Failed to add model');
 }
 
-export async function updateModel(id: string, name: string, brandId: number): Promise<ActionResult> {
+export async function updateModel(id: string, name: string, brandId: number): Promise<ApiResponse> {
   return handleAction('/model', {
     method: 'PUT',
     body: { id, name, brandId },
   }, 'Failed to update model');
 }
 
-export async function deleteModel(id: string): Promise<ActionResult> {
+export async function deleteModel(id: string): Promise<ApiResponse> {
   return handleAction('/model', {
     method: 'DELETE',
     params: { id },
@@ -181,25 +172,25 @@ export async function deleteModel(id: string): Promise<ActionResult> {
 }
 
 // Category Management Actions
-export async function getAllCategories(): Promise<ActionResult> {
+export async function getAllCategories(): Promise<ApiResponse> {
   return handleAction('/category', { method: 'GET' }, 'Failed to fetch categories');
 }
 
-export async function addCategory(name: string, icon?: string): Promise<ActionResult> {
+export async function addCategory(name: string, icon?: string): Promise<ApiResponse> {
   return handleAction('/category', {
     method: 'POST',
     body: { name, icon },
   }, 'Failed to add category');
 }
 
-export async function updateCategory(id: string, name: string, icon?: string): Promise<ActionResult> {
+export async function updateCategory(id: string, name: string, icon?: string): Promise<ApiResponse> {
   return handleAction('/category', {
     method: 'PUT',
     body: { id, name, icon },
   }, 'Failed to update category');
 }
 
-export async function deleteCategory(id: string): Promise<ActionResult> {
+export async function deleteCategory(id: string): Promise<ApiResponse> {
   return handleAction('/category', {
     method: 'DELETE',
     params: { id },
