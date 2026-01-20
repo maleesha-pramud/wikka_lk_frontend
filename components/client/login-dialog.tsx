@@ -64,14 +64,14 @@ export function AuthDialog({ open, onOpenChange, mode, onModeChange }: AuthDialo
         setIsSubmitting(true);
         const response = await loginUser(email.trim(), password);
         if (response.status) {
-          setSuccessMessage(response.message || "Login successful!");
+          setSuccessMessage("Login successful!");
           onOpenChange(false);
           setShowSuccess(true);
           // Reset form
           setEmail("");
           setPassword("");
         } else {
-          toast.error(response.message || "Unable to login. Please try again.");
+          toast.error(response.error || "Unable to login. Please try again.");
         }
       } catch (error) {
         console.error("Login failed:", error);
@@ -115,7 +115,7 @@ export function AuthDialog({ open, onOpenChange, mode, onModeChange }: AuthDialo
           accountType
         );
         if (response.status) {
-          setSuccessMessage(response.message || "Registration successful!");
+          setSuccessMessage("Registration successful!");
           onOpenChange(false);
           setShowSuccess(true);
           // Reset form
@@ -126,7 +126,7 @@ export function AuthDialog({ open, onOpenChange, mode, onModeChange }: AuthDialo
           setAddress("");
           setAccountType("buyer");
         } else {
-          toast.error(response.message || "Unable to register. Please try again.");
+          toast.error(response.error || "Unable to register. Please try again.");
         }
       } catch (error) {
         console.error("Registration failed:", error);

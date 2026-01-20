@@ -54,8 +54,10 @@ export default function CategoriesPage() {
     try {
       setLoading(true);
       const response = await getAllCategories();
-      if (response.status && response.data) {
-        setCategories(response.data);
+      if (response.status) {
+        setCategories(response.data as Category[]);
+      } else {
+        toast.error(response.error || "Failed to fetch categories");
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to fetch categories");
@@ -83,6 +85,8 @@ export default function CategoriesPage() {
         resetForm();
         setShowAddDialog(false);
         await fetchCategories();
+      } else {
+        toast.error(response.error || "Failed to add category");
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to add category");
@@ -96,10 +100,14 @@ export default function CategoriesPage() {
     }
 
     try {
-      const response = await updateCategory(editingCategory.id.toString(), formData.name, formData.icon);
+       const response = await updateCategory(editingCategory.id.toString(), formData.name, formData.icon);
       if (response.status) {
         toast.success("Category updated successfully!");
         resetForm();
+        setEditingCategory(null);
+        await fetchCategories();
+      } else {
+        toast.error(response.error || "Failed to update category");
         setEditingCategory(null);
         await fetchCategories();
       }
@@ -112,6 +120,10 @@ export default function CategoriesPage() {
     try {
       const response = await deleteCategory(id.toString());
       if (response.status) {
+        toast.success("Category deleted successfully!");
+        await fetchCategories();
+      } else {
+        toast.error(response.error || "Failed to delete category");
         toast.success("Category deleted successfully!");
         await fetchCategories();
       }
