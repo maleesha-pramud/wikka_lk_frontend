@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 interface ProductCardProps {
   id: string;
@@ -29,6 +30,8 @@ export function ProductCard({
   onFavoriteToggle,
   onClick,
 }: ProductCardProps) {
+  const router = useRouter();
+
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (onFavoriteToggle) {
@@ -40,6 +43,7 @@ export function ProductCard({
     if (onClick) {
       onClick(id);
     }
+    router.push(`/product/${id}`);
   };
 
   return (

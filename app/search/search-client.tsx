@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ProductCard } from "@/components/client/ProductCard";
+import staticData from "@/lib/static-data.json";
 
 interface Product {
   id: string;
@@ -14,88 +15,7 @@ interface Product {
   isFavorite: boolean;
 }
 
-const mockProducts: Product[] = [
-  {
-    id: "1",
-    title: "iPhone 13 Pro - 128GB Sierra Blue",
-    price: 650,
-    condition: "Like New",
-    location: "Downtown",
-    distance: "2km",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuA6iiFYNJBDuujFd8ZLBO5t0KWWOb0N8g3b1eaU-rtWdeGPOZNP4BAd9jhyRSs1-4-3d2HpsaWRXUaRiMWtj1l2RMSONz3MFyR_BtslXso_WVeVoWXgmGJFIGAx-zuwwQ5SY6VAsuYH8L7M3b77EYbAOBwvGNE6gs73tNprqB5fvCo3gp2NRnn6skpfTBwvtBfcMXZjKOc7bn-8MvO-CZxReelO9SoJOfV8BeXjd3nBJOIFi8WU0uQ6tEUgr3_tU2Igj-3QDAYe00Q",
-    isFavorite: false
-  },
-  {
-    id: "2",
-    title: "MacBook Pro 14\" M1 Pro 512GB",
-    price: 1850,
-    condition: "Like New",
-    location: "Uptown",
-    distance: "1km",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcuCK8bKy_-3Z5S_uPT1XRH916LfkiiS6cKIkgbenk_QiAy_gNeEik9T219IXbnsXlV3cac_kV0V4Cc391rj3usqOKlMbLJw-R5VPHUMSs08Fq2Cm4BHJFP4J5UqQVjICY8cwc4HwIsLRPQO3G_sIMgB4O7B6VG3aShBozE32VmS8TYoPgJwkhvjwIE9r7WNBTTODenB4j2UNfvGg7lqQ-wU4_gJW1Nve20YZfTN_buzsUWql0ChSv4XkETrqQ8YlhXxPueHGaPug",
-    isFavorite: false
-  },
-  {
-    id: "3",
-    title: "Vintage Leather Jacket",
-    price: 45,
-    condition: "Good",
-    location: "West End",
-    distance: "5km",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDbC99mddpwHOFNX5HnbGJJX7v4jsuzy78MCg4hl2zQP0ebKn_oAdqptsCD74dwh0zvoQvAQ8qkFoJ_rO9a87H-Op2iE4cpxxe3PT9EmwgwHczL9igR4ew4AuHtPH6OTVbBe4eZD_J0ppcRwvrBYA3ktud-dgr8B_GQinwwc98sJnWQZxwkUCq62dq7xAbyI2Y64JUzZC7J31fTX1vh8CJOx6Y6EJ4ixp4BQ4AosvCoiR_Qjsq8UD4vGlMCnvgN9wWPZE-oW9m0V9w",
-    isFavorite: false
-  },
-  {
-    id: "4",
-    title: "Sony A7III Camera Kit",
-    price: 1400,
-    condition: "Good",
-    location: "Uptown",
-    distance: "1km",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDsu5Bu3QZwgF2OEKgi7EK0qpWBUXztvjJM9Kxdcsl43vToTNNpE8hquBhYDfJO_Bf4F2dHw8GFI-9b_OHav6qu1T4nx2_ysTugSj5slDGGTOEAFnHiCZhC6jD0wknA7I9f7vHMQWX--SY9FunxSdp4opR5mbU7TAI-6FsgbiPV6NoguJ5B4rBmHNMJIpEVxTRNCuKf7oIL6AnI6eQ7WmN36KJeNReA-4cTZ4C0RsWgxrvmu1_IrEuXfyzqWNO7_UtybFUI-TNXLbA",
-    isFavorite: false
-  },
-  {
-    id: "5",
-    title: "Trek Marlin Mountain Bike",
-    price: 350,
-    condition: "Good",
-    location: "Suburbs",
-    distance: "10km",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBcuCK8bKy_-3Z5S_uPT1XRH916LfkiiS6cKIkgbenk_QiAy_gNeEik9T219IXbnsXlV3cac_kV0V4Cc391rj3usqOKlMbLJw-R5VPHUMSs08Fq2Cm4BHJFP4J5UqQVjICY8cwc4HwIsLRPQO3G_sIMgB4O7B6VG3aShBozE32VmS8TYoPgJwkhvjwIE9r7WNBTTODenB4j2UNfvGg7lqQ-wU4_gJW1Nve20YZfTN_buzsUWql0ChSv4XkETrqQ8YlhXxPueHGaPug",
-    isFavorite: false
-  },
-  {
-    id: "6",
-    title: "Green Velvet Sofa",
-    price: 200,
-    condition: "Fair",
-    location: "North End",
-    distance: "8km",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBlAi_aqHaz79RreZqiDmUOUPpBDKcsadpsMpZY6LBSlYxVDUIf5XhVmzYwjhYLpmB8UPLtN6U6gnrm_mVwm9tWlOqH1LxjTnf_nfufWOPbMsbrhYzQunkFbcjwOu6FFJ1tF3h_IDCtzEQwlC-vadxM6g1X47gXlZayuMLcYKs-gcGUEez2Mg1CXmxmwxlPK8cG8NeEQ1pSOs-apFmnRUs59E7HSVtELwr33laSAanQrIpPf7f8Q-p1tsc4m7KCihX-RgGVw-i2DA",
-    isFavorite: false
-  },
-  {
-    id: "7",
-    title: "PlayStation 5 Console",
-    price: 450,
-    condition: "Like New",
-    location: "Downtown",
-    distance: "3km",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuDsu5Bu3QZwgF2OEKgi7EK0qpWBUXztvjJM9Kxdcsl43vToTNNpE8hquBhYDfJO_Bf4F2dHw8GFI-9b_OHav6qu1T4nx2_ysTugSj5slDGGTOEAFnHiCZhC6jD0wknA7I9f7vHMQWX--SY9FunxSdp4opR5mbU7TAI-6FsgbiPV6NoguJ5B4rBmHNMJIpEVxTRNCuKf7oIL6AnI6eQ7WmN36KJeNReA-4cTZ4C0RsWgxrvmu1_IrEuXfyzqWNO7_UtybFUI-TNXLbA",
-    isFavorite: true
-  },
-  {
-    id: "8",
-    title: "Wooden Dining Table Set",
-    price: 180,
-    condition: "Good",
-    location: "West End",
-    distance: "6km",
-    image: "https://lh3.googleusercontent.com/aida-public/AB6AXuBlAi_aqHaz79RreZqiDmUOUPpBDKcsadpsMpZY6LBSlYxVDUIf5XhVmzYwjhYLpmB8UPLtN6U6gnrm_mVwm9tWlOqH1LxjTnf_nfufWOPbMsbrhYzQunkFbcjwOu6FFJ1tF3h_IDCtzEQwlC-vadxM6g1X47gXlZayuMLcYKs-gcGUEez2Mg1CXmxmwxlPK8cG8NeEQ1pSOs-apFmnRUs59E7HSVtELwr33laSAanQrIpPf7f8Q-p1tsc4m7KCihX-RgGVw-i2DA",
-    isFavorite: false
-  },
-];
+const mockProducts: Product[] = staticData.mockProducts;
 
 export function SearchClient() {
   const [searchQuery, setSearchQuery] = useState("");
