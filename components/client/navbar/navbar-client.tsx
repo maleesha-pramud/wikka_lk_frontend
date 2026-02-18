@@ -37,14 +37,14 @@ export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
     <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/95 backdrop-blur-md dark:border-gray-800 dark:bg-background-dark/95 px-4 md:px-6 py-4 shadow-sm transition-all">
       <div className="mx-auto flex max-w-350 items-center justify-between gap-4 md:gap-6">
         {/* Logo */}
-        <div className="flex items-center gap-3 cursor-pointer shrink-0">
+        <Link href="/" className="flex items-center gap-3 cursor-pointer shrink-0">
           <div className="flex size-10 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/20">
             <span className="material-symbols-outlined text-2xl font-bold">storefront</span>
           </div>
           <span className="text-xl md:text-2xl font-bold tracking-tight text-primary dark:text-white whitespace-nowrap">
             Wikka.lk
           </span>
-        </div>
+        </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex flex-1 justify-center gap-10">

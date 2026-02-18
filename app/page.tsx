@@ -1,5 +1,6 @@
-import Image from "next/image";
 import { Navbar } from "@/components/server/navbar";
+import { HomeProductsGrid } from "./home-products-grid";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -153,160 +154,11 @@ export default function Home() {
               Filters
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 xl:grid-cols-4">
-            <div className="group relative flex flex-col gap-3 rounded-2xl bg-white p-2.5 shadow-soft transition-all hover:shadow-hover dark:bg-surface-dark">
-              <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-gray-100">
-                <Image fill className="object-cover transition-transform duration-500 group-hover:scale-105" alt="Close up of a modern smartphone on a desk" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6iiFYNJBDuujFd8ZLBO5t0KWWOb0N8g3b1eaU-rtWdeGPOZNP4BAd9jhyRSs1-4-3d2HpsaWRXUaRiMWtj1l2RMSONz3MFyR_BtslXso_WVeVoWXgmGJFIGAx-zuwwQ5SY6VAsuYH8L7M3b77EYbAOBwvGNE6gs73tNprqB5fvCo3gp2NRnn6skpfTBwvtBfcMXZjKOc7bn-8MvO-CZxReelO9SoJOfV8BeXjd3nBJOIFi8WU0uQ6tEUgr3_tU2Igj-3QDAYe00Q" unoptimized />
-                <button className="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white text-gray-400 shadow-sm transition-colors hover:text-red-500 dark:bg-background-dark/80 dark:text-gray-200">
-                  <span className="material-symbols-outlined text-[20px]">favorite</span>
-                </button>
-                <span className="absolute bottom-2 left-2 rounded-md bg-white/90 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-text-main shadow-sm backdrop-blur-sm dark:bg-black/80 dark:text-white">Like New</span>
-              </div>
-              <div className="px-1 pb-2">
-                <div className="mb-1 flex items-baseline justify-between">
-                  <span className="text-lg font-bold text-text-main dark:text-white">€650</span>
-                </div>
-                <h3 className="line-clamp-1 text-sm font-medium text-text-main dark:text-gray-200">iPhone 13 Pro - 128GB Sierra Blue</h3>
-                <div className="mt-2 flex items-center gap-1 text-xs font-medium text-gray-400">
-                  <span className="material-symbols-outlined text-[14px]">location_on</span>
-                  <span>Downtown · 2km</span>
-                </div>
-              </div>
-            </div>
-            <div className="group relative flex flex-col gap-3 rounded-2xl bg-white p-2.5 shadow-soft transition-all hover:shadow-hover dark:bg-surface-dark">
-              <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-gray-100">
-                <Image fill className="object-cover transition-transform duration-500 group-hover:scale-105" alt="Brown leather jacket hanging against a wall" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbC99mddpwHOFNX5HnbGJJX7v4jsuzy78MCg4hl2zQP0ebKn_oAdqptsCD74dwh0zvoQvAQ8qkFoJ_rO9a87H-Op2iE4cpxxe3PT9EmwgwHczL9igR4ew4AuHtPH6OTVbBe4eZD_J0ppcRwvrBYA3ktud-dgr8B_GQinwwc98sJnWQZxwkUCq62dq7xAbyI2Y64JUzZC7J31fTX1vh8CJOx6Y6EJ4ixp4BQ4AosvCoiR_Qjsq8UD4vGlMCnvgN9wWPZE-oW9m0V9w" unoptimized />
-                <button className="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white text-gray-400 shadow-sm transition-colors hover:text-red-500 dark:bg-background-dark/80 dark:text-gray-200">
-                  <span className="material-symbols-outlined text-[20px]">favorite</span>
-                </button>
-              </div>
-              <div className="px-1 pb-2">
-                <div className="mb-1 flex items-baseline justify-between">
-                  <span className="text-lg font-bold text-text-main dark:text-white">€45</span>
-                </div>
-                <h3 className="line-clamp-1 text-sm font-medium text-text-main dark:text-gray-200">Vintage Leather Jacket</h3>
-                <div className="mt-2 flex items-center gap-1 text-xs font-medium text-gray-400">
-                  <span className="material-symbols-outlined text-[14px]">location_on</span>
-                  <span>West End · 5km</span>
-                </div>
-              </div>
-            </div>
-            <div className="group relative flex flex-col gap-3 rounded-2xl bg-white p-2.5 shadow-soft transition-all hover:shadow-hover dark:bg-surface-dark">
-              <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-gray-100">
-                <Image fill className="object-cover transition-transform duration-500 group-hover:scale-105" alt="Professional camera with lens on a table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsu5Bu3QZwgF2OEKgi7EK0qpWBUXztvjJM9Kxdcsl43vToTNNpE8hquBhYDfJO_Bf4F2dHw8GFI-9b_OHav6qu1T4nx2_ysTugSj5slDGGTOEAFnHiCZhC6jD0wknA7I9f7vHMQWX--SY9FunxSdp4opR5mbU7TAI-6FsgbiPV6NoguJ5B4rBmHNMJIpEVxTRNCuKf7oIL6AnI6eQ7WmN36KJeNReA-4cTZ4C0RsWgxrvmu1_IrEuXfyzqWNO7_UtybFUI-TNXLbA" unoptimized />
-                <button className="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white text-gray-400 shadow-sm transition-colors hover:text-red-500 dark:bg-background-dark/80 dark:text-gray-200">
-                  <span className="material-symbols-outlined text-[20px]">favorite</span>
-                </button>
-                <span className="absolute bottom-2 left-2 rounded-md bg-white/90 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-text-main shadow-sm backdrop-blur-sm dark:bg-black/80 dark:text-white">Good</span>
-              </div>
-              <div className="px-1 pb-2">
-                <div className="mb-1 flex items-baseline justify-between">
-                  <span className="text-lg font-bold text-text-main dark:text-white">€1,400</span>
-                </div>
-                <h3 className="line-clamp-1 text-sm font-medium text-text-main dark:text-gray-200">Sony A7III Camera Kit</h3>
-                <div className="mt-2 flex items-center gap-1 text-xs font-medium text-gray-400">
-                  <span className="material-symbols-outlined text-[14px]">location_on</span>
-                  <span>Uptown · 1km</span>
-                </div>
-              </div>
-            </div>
-            <div className="group relative flex flex-col gap-3 rounded-2xl bg-white p-2.5 shadow-soft transition-all hover:shadow-hover dark:bg-surface-dark">
-              <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-gray-100">
-                <Image fill className="object-cover transition-transform duration-500 group-hover:scale-105" alt="Mountain bike parked on a trail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcuCK8bKy_-3Z5S_uPT1XRH916LfkiiS6cKIkgbenk_QiAy_gNeEik9T219IXbnsXlV3cac_kV0V4Cc391rj3usqOKlMbLJw-R5VPHUMSs08Fq2Cm4BHJFP4J5UqQVjICY8cwc4HwIsLRPQO3G_sIMgB4O7B6VG3aShBozE32VmS8TYoPgJwkhvjwIE9r7WNBTTODenB4j2UNfvGg7lqQ-wU4_gJW1Nve20YZfTN_buzsUWql0ChSv4XkETrqQ8YlhXxPueHGaPug" unoptimized />
-                <button className="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white text-gray-400 shadow-sm transition-colors hover:text-red-500 dark:bg-background-dark/80 dark:text-gray-200">
-                  <span className="material-symbols-outlined text-[20px]">favorite</span>
-                </button>
-              </div>
-              <div className="px-1 pb-2">
-                <div className="mb-1 flex items-baseline justify-between">
-                  <span className="text-lg font-bold text-text-main dark:text-white">€350</span>
-                </div>
-                <h3 className="line-clamp-1 text-sm font-medium text-text-main dark:text-gray-200">Trek Marlin Mountain Bike</h3>
-                <div className="mt-2 flex items-center gap-1 text-xs font-medium text-gray-400">
-                  <span className="material-symbols-outlined text-[14px]">location_on</span>
-                  <span>Suburbs · 10km</span>
-                </div>
-              </div>
-            </div>
-            <div className="group relative flex flex-col gap-3 rounded-2xl bg-white p-2.5 shadow-soft transition-all hover:shadow-hover dark:bg-surface-dark">
-              <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-gray-100">
-                <Image fill className="object-cover transition-transform duration-500 group-hover:scale-105" alt="Green velvet sofa in a modern living room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlAi_aqHaz79RreZqiDmUOUPpBDKcsadpsMpZY6LBSlYxVDUIf5XhVmzYwjhYLpmB8UPLtN6U6gnrm_mVwm9tWlOqH1LxjTnf_nfufWOPbMsbrhYzQunkFbcjwOu6FFJ1tF3h_IDCtzEQwlC-vadxM6g1X47gXlZayuMLcYKs-gcGUEez2Mg1CXmxmwxlPK8cG8NeEQ1pSOs-apFmnRUs59E7HSVtELwr33laSAanQrIpPf7f8Q-p1tsc4m7KCihX-RgGVw-i2DA" unoptimized />
-                <button className="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white text-gray-400 shadow-sm transition-colors hover:text-red-500 dark:bg-background-dark/80 dark:text-gray-200">
-                  <span className="material-symbols-outlined text-[20px]">favorite</span>
-                </button>
-              </div>
-              <div className="px-1 pb-2">
-                <div className="mb-1 flex items-baseline justify-between">
-                  <span className="text-lg font-bold text-text-main dark:text-white">€200</span>
-                </div>
-                <h3 className="line-clamp-1 text-sm font-medium text-text-main dark:text-gray-200">Green Velvet Sofa</h3>
-                <div className="mt-2 flex items-center gap-1 text-xs font-medium text-gray-400">
-                  <span className="material-symbols-outlined text-[14px]">location_on</span>
-                  <span>North End · 8km</span>
-                </div>
-              </div>
-            </div>
-            <div className="group relative flex flex-col gap-3 rounded-2xl bg-white p-2.5 shadow-soft transition-all hover:shadow-hover dark:bg-surface-dark">
-              <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-gray-100">
-                <Image fill className="object-cover transition-transform duration-500 group-hover:scale-105" alt="Gaming console controller on a dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAFVKsmLa8GoDSlhdMXxI_8bkj-6xNgxnsRR31sG2jK6s1gZrN6UNRUk_FXDed92M0zcDOz3einqOiPIZCg7_qff9rp8K9pt4DxnpD9YBd_ZZwfmCONkbVRgZ5Qf5PIaurFU7ztO79M1smDOmU7LT2ZV1_QDLBKMBHPoeghqTna-kFz22ydT3HPOpvw0Nbd27qUvbsSyLmEv0iNDFBZZpkNL8829t29IxhtbUa7ssQr4Jb13iUuZ1uQrYbrLYNjzbIFixb5Sw81GwE" unoptimized />
-                <button className="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white text-gray-400 shadow-sm transition-colors hover:text-red-500 dark:bg-background-dark/80 dark:text-gray-200">
-                  <span className="material-symbols-outlined text-[20px]">favorite</span>
-                </button>
-                <span className="absolute bottom-2 left-2 rounded-md bg-white/90 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-text-main shadow-sm backdrop-blur-sm dark:bg-black/80 dark:text-white">Used</span>
-              </div>
-              <div className="px-1 pb-2">
-                <div className="mb-1 flex items-baseline justify-between">
-                  <span className="text-lg font-bold text-text-main dark:text-white">€300</span>
-                </div>
-                <h3 className="line-clamp-1 text-sm font-medium text-text-main dark:text-gray-200">PS5 Controller + Games Bundle</h3>
-                <div className="mt-2 flex items-center gap-1 text-xs font-medium text-gray-400">
-                  <span className="material-symbols-outlined text-[14px]">location_on</span>
-                  <span>City Center · 3km</span>
-                </div>
-              </div>
-            </div>
-            <div className="group relative flex flex-col gap-3 rounded-2xl bg-white p-2.5 shadow-soft transition-all hover:shadow-hover dark:bg-surface-dark">
-              <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-gray-100">
-                <Image fill className="object-cover transition-transform duration-500 group-hover:scale-105" alt="Red nike sneakers on white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAl--e2Iq-cuPQiRpZiUWrH7_0e_43bfx_6ikQ0Rio8CkzoUZW_mNCHEhDxIVp44bqRirjGb5wSwLr-cgq2mjdDZwcx2T-mNBBuj2o-Pa0UkgykPqdOyok3vHvCUmSY6T7QmhhkAfiNyArC-zo8_gFVSZJIIuBpwvn0RggH-RJnw0x5q_3aqH6ZcaFbe6g5GhtIO9VLdo4zG9UYECPbzAtlG9h17-pAaRbS8nCI6elvZNwKi3AiOLqnS6gFTOFTOr49fGdnBwUmA7k" unoptimized />
-                <button className="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white text-gray-400 shadow-sm transition-colors hover:text-red-500 dark:bg-background-dark/80 dark:text-gray-200">
-                  <span className="material-symbols-outlined text-[20px]">favorite</span>
-                </button>
-              </div>
-              <div className="px-1 pb-2">
-                <div className="mb-1 flex items-baseline justify-between">
-                  <span className="text-lg font-bold text-text-main dark:text-white">€85</span>
-                </div>
-                <h3 className="line-clamp-1 text-sm font-medium text-text-main dark:text-gray-200">Nike Air Max - Size 42</h3>
-                <div className="mt-2 flex items-center gap-1 text-xs font-medium text-gray-400">
-                  <span className="material-symbols-outlined text-[14px]">location_on</span>
-                  <span>East Side · 4km</span>
-                </div>
-              </div>
-            </div>
-            <div className="group relative flex flex-col gap-3 rounded-2xl bg-white p-2.5 shadow-soft transition-all hover:shadow-hover dark:bg-surface-dark">
-              <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-gray-100">
-                <Image fill className="object-cover transition-transform duration-500 group-hover:scale-105" alt="Vintage record player on wooden table" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwEdbtiq2-Mj3THOr1N9lEkGlgS2mVGJCD-ppE2MU5Jcn1Evzqh9A_pN39aisOdKjys_27iq1kRhUyMWqtwvkH_pYDC34Q4Wse5mYVlcSzibkRN9RxTNmWl2ZmNgyj_gq-WkxtZ40Os4Ioe_1MIhIqasaySUl5LllOg7H8rBAzEhyWHcywDP8BihNjFV9-B4t0ZONurnEtJ0yefIi-5t8NtlUPhnTc3wRb8YhPtggyZdidSed_zPF1wMsBgGP1SbsW1pwt_RF1fuE" unoptimized />
-                <button className="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full bg-white text-gray-400 shadow-sm transition-colors hover:text-red-500 dark:bg-background-dark/80 dark:text-gray-200">
-                  <span className="material-symbols-outlined text-[20px]">favorite</span>
-                </button>
-                <span className="absolute bottom-2 left-2 rounded-md bg-white/90 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-text-main shadow-sm backdrop-blur-sm dark:bg-black/80 dark:text-white">Vintage</span>
-              </div>
-              <div className="px-1 pb-2">
-                <div className="mb-1 flex items-baseline justify-between">
-                  <span className="text-lg font-bold text-text-main dark:text-white">€120</span>
-                </div>
-                <h3 className="line-clamp-1 text-sm font-medium text-text-main dark:text-gray-200">Audio Technica Turntable</h3>
-                <div className="mt-2 flex items-center gap-1 text-xs font-medium text-gray-400">
-                  <span className="material-symbols-outlined text-[14px]">location_on</span>
-                  <span>Downtown · 1.5km</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <HomeProductsGrid />
           <div className="flex justify-center pt-8">
-            <button className="rounded-full bg-white px-8 py-3.5 text-sm font-bold text-primary shadow-sm ring-1 ring-gray-200 transition-all hover:bg-gray-50 hover:ring-primary dark:bg-surface-dark dark:text-white dark:ring-gray-700 dark:hover:bg-gray-700">
+            <Link href="/search" className="rounded-full bg-white px-8 py-3.5 text-sm font-bold text-primary shadow-sm ring-1 ring-gray-200 transition-all hover:bg-gray-50 hover:ring-primary dark:bg-surface-dark dark:text-white dark:ring-gray-700 dark:hover:bg-gray-700">
               Load more items
-            </button>
+            </Link>
           </div>
         </div>
       </main>
