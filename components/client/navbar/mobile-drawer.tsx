@@ -10,6 +10,7 @@ import {
 import { ProfilePopover } from "@/components/client/popovers/profile-popover"
 import staticData from "@/lib/static-data.json"
 import type { MenuItem, StaticData } from "@/lib/types/menu-items"
+import { useCart } from "@/lib/cart-context"
 
 const staticValues = staticData as StaticData
 
@@ -34,6 +35,8 @@ export function MobileDrawer({
   onRegisterClick,
   onLogout,
 }: MobileDrawerProps) {
+  const { getCartSummary } = useCart()
+  const cartSummary = getCartSummary()
   const handleItemClick = async (item: MenuItem) => {
     if ("action" in item && item.action === "logout") {
       await onLogout()
@@ -84,6 +87,15 @@ export function MobileDrawer({
           {!isLoggedIn && (
             <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-800">
               <div className="flex flex-col gap-3 mb-4">
+                <Link href="/buyer/cart" className="w-full flex items-center justify-center gap-2 h-11 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 px-6 text-sm font-bold text-text-main dark:text-white transition-colors hover:border-primary hover:bg-primary/5 relative">
+                  <span className="material-symbols-outlined text-[20px]">shopping_cart</span>
+                  <span>Cart</span>
+                  {cartSummary.itemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-5 h-5 px-1 text-xs font-bold text-white bg-primary rounded-full">
+                      {cartSummary.itemCount > 9 ? "9+" : cartSummary.itemCount}
+                    </span>
+                  )}
+                </Link>
                 <button
                   onClick={onLoginClick}
                   className="h-11 px-6 text-sm font-semibold border border-gray-200 rounded-md hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all bg-white dark:bg-background-dark text-text-main dark:text-white"
@@ -102,7 +114,16 @@ export function MobileDrawer({
 
           {/* Mobile Sell Product Button */}
           {isLoggedIn && (
-            <div className="px-4 py-2">
+            <div className="px-4 py-2 space-y-2">
+              <Link href="/buyer/cart" className="w-full flex items-center justify-center gap-2 h-11 rounded-lg bg-white dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-700 px-6 text-sm font-bold text-text-main dark:text-white transition-colors hover:border-primary hover:bg-primary/5 relative">
+                <span className="material-symbols-outlined text-[20px]">shopping_cart</span>
+                <span>Cart</span>
+                {cartSummary.itemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-5 h-5 px-1 text-xs font-bold text-white bg-primary rounded-full">
+                    {cartSummary.itemCount > 9 ? "9+" : cartSummary.itemCount}
+                  </span>
+                )}
+              </Link>
               <Link href="/sell" className="w-full flex items-center justify-center gap-2 h-11 rounded-lg bg-primary px-6 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-px hover:bg-primary-hover hover:shadow-primary/30 active:translate-y-px">
                 <span className="material-symbols-outlined text-[20px]">add</span>
                 <span>Sell Product</span>

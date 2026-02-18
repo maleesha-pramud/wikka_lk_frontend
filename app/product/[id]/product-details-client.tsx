@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import staticData from "@/lib/static-data.json";
+import { AddToCartButton } from "@/components/client/add-to-cart-button";
 
 interface ProductDetailsClientProps {
   productId: string;
@@ -184,10 +185,18 @@ export function ProductDetailsClient({ productId }: ProductDetailsClientProps) {
           {/* Action Buttons */}
           <div className="flex flex-col gap-3">
             <div className="flex gap-3">
-              <button className="flex h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-lg font-bold text-white transition-colors hover:bg-primary-hover shadow-lg shadow-primary/20">
-                <span className="material-symbols-outlined text-[24px]">shopping_cart</span>
-                Add to Cart
-              </button>
+              <AddToCartButton
+                productId={product.id}
+                title={product.title}
+                price={product.price}
+                image={product.image}
+                condition={product.condition}
+                location={product.location}
+                sellerId="seller-1"
+                sellerName={product.seller.name}
+                className="flex h-14 flex-1 items-center justify-center gap-2 rounded-xl text-lg font-bold shadow-lg shadow-primary/20"
+                size="lg"
+              />
               <button 
                 onClick={handleFavoriteToggle}
                 className={`flex h-14 items-center justify-center rounded-xl border-2 px-6 transition-all ${

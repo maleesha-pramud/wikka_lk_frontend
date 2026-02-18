@@ -8,8 +8,11 @@ import Link from "next/link"
 import { logoutUser } from "@/app/actions"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { useCart } from "@/lib/cart-context"
 
 export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
+  const { getCartSummary } = useCart()
+  const cartSummary = getCartSummary()
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [authDialogOpen, setAuthDialogOpen] = React.useState(false)
   const [authMode, setAuthMode] = React.useState<"login" | "register">("login")
@@ -64,6 +67,21 @@ export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
 
         {/* Desktop Right Section */}
         <div className="hidden md:flex items-center gap-3 shrink-0">
+          {/* Cart Icon */}
+          <Link
+            href="/buyer/cart"
+            className="relative flex items-center justify-center size-11 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            <span className="material-symbols-outlined text-[24px] text-text-main dark:text-white">
+              shopping_cart
+            </span>
+            {cartSummary.itemCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-5 h-5 px-1 text-xs font-bold text-white bg-primary rounded-full">
+                {cartSummary.itemCount > 9 ? "9+" : cartSummary.itemCount}
+              </span>
+            )}
+          </Link>
+
           {!isLoggedIn && (
             <>
               <button
