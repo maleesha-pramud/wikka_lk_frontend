@@ -196,3 +196,76 @@ export async function deleteCategory(id: string): Promise<ApiResponse> {
     params: { id },
   }, 'Failed to delete category');
 }
+
+// Product Management Actions
+export async function getAllProducts(): Promise<ApiResponse> {
+  return handleAction('/product', { method: 'GET' }, 'Failed to fetch products');
+}
+
+export async function addProduct(
+  name: string,
+  basePrice: number,
+  description: string,
+  contactNo: string,
+  modelId: number,
+  conditionId: number,
+  categoryId: number,
+  sellerId: number,
+  statusId: number
+): Promise<ApiResponse> {
+  return handleAction('/product', {
+    method: 'POST',
+    body: {
+      name,
+      basePrice,
+      description,
+      contactNo,
+      modelId,
+      conditionId,
+      categoryId,
+      sellerId,
+      statusId
+    },
+  }, 'Failed to add product');
+}
+
+export async function updateProduct(
+  id: number,
+  name: string,
+  basePrice: number,
+  description: string,
+  contactNo: string,
+  modelId: number,
+  conditionId: number,
+  categoryId: number,
+  sellerId: number,
+  statusId: number
+): Promise<ApiResponse> {
+  return handleAction('/product', {
+    method: 'PUT',
+    body: {
+      id,
+      name,
+      basePrice,
+      description,
+      contactNo,
+      modelId,
+      conditionId,
+      categoryId,
+      sellerId,
+      statusId
+    },
+  }, 'Failed to update product');
+}
+
+export async function deleteProduct(id: string): Promise<ApiResponse> {
+  return handleAction('/product', {
+    method: 'DELETE',
+    params: { id },
+  }, 'Failed to delete product');
+}
+
+// Product Condition Management Actions
+export async function getAllConditions(): Promise<ApiResponse> {
+  return handleAction('/product-condition', { method: 'GET' }, 'Failed to fetch conditions');
+}

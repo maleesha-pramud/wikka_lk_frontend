@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { addProduct, getAllBrands, getAllModels, getAllCategories, getAllConditions } from "@/app/actions";
 
 interface Variant {
   color: string;
@@ -20,12 +21,36 @@ interface FormErrors {
   variants?: string;
 }
 
+interface Brand {
+  id: number;
+  name: string;
+}
+
+interface Model {
+  id: number;
+  name: string;
+  brandId: number;
+}
+
+interface Category {
+  id: number;
+  name: string;
+  icon?: string;
+}
+
+interface Condition {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export default function SellPage() {
   const [productName, setProductName] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("cameras");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
-  const [condition, setCondition] = useState("like-new");
+  const [condition, setCondition] = useState("");
   const [specs, setSpecs] = useState("");
   const [description, setDescription] = useState("");
   const [contact, setContact] = useState("");
@@ -39,6 +64,13 @@ export default function SellPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // API data
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [models, setModels] = useState<Model[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [conditions, setConditions] = useState<Condition[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   // Auto-save to localStorage
   useEffect(() => {
@@ -75,10 +107,10 @@ export default function SellPage() {
       try {
         const parsed = JSON.parse(draft);
         setProductName(parsed.title || "");
-        setSelectedCategory(parsed.selectedCategory || "cameras");
+        setSelectedCategory(parsed.selectedCategory || "");
         setBrand(parsed.brand || "");
         setModel(parsed.model || "");
-        setCondition(parsed.condition || "like-new");
+        setCondition(parsed.condition || "");
         setSpecs(parsed.specs || "");
         setDescription(parsed.description || "");
         setContact(parsed.contact || "");
@@ -90,6 +122,43 @@ export default function SellPage() {
         console.error("Failed to load draft:", e);
       }
     }
+  }, []);
+
+  // Fetch brands, models, and categories on mount
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoadingData(true);
+      try {
+        const [brandsResult, modelsResult, categoriesResult, conditionsResult] = await Promise.all([
+          getAllBrands(),
+          getAllModels(),
+          getAllCategories(),
+          getAllConditions(),
+        ]);
+
+        if (brandsResult.status && brandsResult.data) {
+          setBrands(brandsResult.data as Brand[]);
+        }
+        if (modelsResult.status && modelsResult.data) {
+          setModels(modelsResult.data as Model[]);
+        }
+        if (categoriesResult.status && categoriesResult.data) {
+          setCategories(categoriesResult.data as Category[]);
+        }
+        if (conditionsResult.status && conditionsResult.data) {
+          setConditions(conditionsResult.data as Condition[]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+        toast.error("Failed to load form data", {
+          description: "Some options may not be available.",
+        });
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const validateForm = (): boolean => {
@@ -157,33 +226,55 @@ export default function SellPage() {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Calculate base price from variants (using the first variant's price)
+      const basePrice = variants.length > 0 ? variants[0].price : 0;
 
-      // Clear draft
-      localStorage.removeItem("sell-draft");
+      // Format contact number (remove spaces and +94 prefix)
+      const formattedContact = contact.replace(/\s+/g, "").replace(/^\+94/, "0");
 
-      toast.success("Item listed successfully!", {
-        description: "Your listing is now live and visible to buyers.",
-      });
+      // Call the API
+      const result = await addProduct(
+        productName,
+        basePrice,
+        description,
+        formattedContact,
+        parseInt(model) || 1, // Convert model to number, default to 1
+        parseInt(condition) || 1, // Use numeric condition ID
+        parseInt(selectedCategory) || 1, // Use numeric category ID
+        1, // sellerId - TODO: get from user session
+        1  // statusId - default to 1 (active)
+      );
 
-      // Reset form
-      setProductName("");
-      setSelectedCategory("cameras");
-      setBrand("");
-      setModel("");
-      setCondition("like-new");
-      setSpecs("");
-      setDescription("");
-      setContact("");
-      setOpenToExchange(false);
-      setImages([]);
-      setImagePreviews([]);
-      setVariants([{ color: "black", price: 0, stock: 0 }]);
-      setErrors({});
+      if (result.status) {
+        // Clear draft
+        localStorage.removeItem("sell-draft");
+
+        toast.success("Item listed successfully!", {
+          description: result.message || "Your listing is now live and visible to buyers.",
+        });
+
+        // Reset form
+        setProductName("");
+        setSelectedCategory(categories.length > 0 ? categories[0].id.toString() : "");
+        setBrand("");
+        setModel("");
+        setCondition(conditions.length > 0 ? conditions[0].id.toString() : "");
+        setSpecs("");
+        setDescription("");
+        setContact("");
+        setOpenToExchange(false);
+        setImages([]);
+        setImagePreviews([]);
+        setVariants([{ color: "black", price: 0, stock: 0 }]);
+        setErrors({});
+      } else {
+        toast.error("Failed to list item", {
+          description: result.message || "Please try again later.",
+        });
+      }
     } catch (error) {
       toast.error("Failed to list item", {
-        description: "Please try again later.",
+        description: error instanceof Error ? error.message : "An unexpected error occurred",
       });
     } finally {
       setIsSubmitting(false);
@@ -262,15 +353,10 @@ export default function SellPage() {
     setDraggedIndex(null);
   };
 
-  const categories = [
-    { id: "cameras", icon: "photo_camera", label: "Cameras" },
-    { id: "mobile", icon: "smartphone", label: "Mobile" },
-    { id: "fashion", icon: "checkroom", label: "Fashion" },
-    { id: "computers", icon: "computer", label: "Computers" },
-    { id: "sports", icon: "sports_soccer", label: "Sports" },
-  ];
-
-  const conditions = ["New", "Like New", "Good", "Fair", "Has given it all"];
+  // Filter models based on selected brand
+  const filteredModels = brand
+    ? models.filter((m) => m.brandId === parseInt(brand))
+    : models;
 
   const addVariant = () => {
     setVariants([...variants, { color: "black", price: 0, stock: 0 }]);
@@ -288,12 +374,20 @@ export default function SellPage() {
 
   const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
-    let cleaned = input.replace(/\D+/g, ""); // Remove non-digits
+    // Remove all non-digits first
+    let cleaned = input.replace(/\D+/g, "");
 
-    if (cleaned.startsWith("0")) {
-      cleaned = cleaned.slice(1); // Remove leading 0
+    // Remove leading 94 if present (country code)
+    if (cleaned.startsWith("94")) {
+      cleaned = cleaned.slice(2);
     }
 
+    // Remove leading 0 if present
+    if (cleaned.startsWith("0")) {
+      cleaned = cleaned.slice(1);
+    }
+
+    // Format with +94 prefix and spacing
     const formatted = `+94 ${cleaned.slice(0, 2)} ${cleaned.slice(2, 5)} ${cleaned.slice(5, 9)}`.trim();
     setContact(formatted);
   };
@@ -351,38 +445,42 @@ export default function SellPage() {
               <label className="text-sm font-bold text-text-main-light dark:text-text-main-dark ml-1">
                 Category
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-                {categories.map((category) => (
-                  <button
-                    key={category.id}
-                    className={`group flex flex-col items-center justify-center gap-3 h-28 rounded-xl transition-all shadow-sm ${
-                      selectedCategory === category.id
-                        ? "border-2 border-primary bg-primary-light/30 text-primary"
-                        : "border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark hover:bg-background-light dark:hover:bg-white/5 text-text-secondary-light dark:text-text-secondary-dark hover:border-primary/50 hover:text-primary"
-                    }`}
-                    type="button"
-                    onClick={() => setSelectedCategory(category.id)}
-                  >
-                    <span className="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform duration-300">
-                      {category.icon}
-                    </span>
-                    <span
-                      className={`text-xs ${
-                        selectedCategory === category.id ? "font-bold" : "font-medium"
-                      }`}
+              {isLoadingData ? (
+                <div className="flex items-center justify-center py-8 text-text-secondary-light">
+                  <span className="text-sm">Loading categories...</span>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                  {categories.map((category) => (
+                    <button
+                      key={category.id}
+                      className={`group flex flex-col items-center justify-center gap-3 h-28 rounded-xl transition-all shadow-sm ${selectedCategory === category.id.toString()
+                          ? "border-2 border-primary bg-primary-light/30 text-primary"
+                          : "border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark hover:bg-background-light dark:hover:bg-white/5 text-text-secondary-light dark:text-text-secondary-dark hover:border-primary/50 hover:text-primary"
+                        }`}
+                      type="button"
+                      onClick={() => setSelectedCategory(category.id.toString())}
                     >
-                      {category.label}
-                    </span>
+                      <span className="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform duration-300">
+                        {category.icon || "category"}
+                      </span>
+                      <span
+                        className={`text-xs ${selectedCategory === category.id.toString() ? "font-bold" : "font-medium"
+                          }`}
+                      >
+                        {category.name}
+                      </span>
+                    </button>
+                  ))}
+                  <button
+                    className="group flex flex-col items-center justify-center gap-3 h-28 rounded-xl border border-dashed border-border-light dark:border-border-dark bg-background-light/50 dark:bg-surface-dark text-text-secondary-light hover:border-text-secondary-light hover:text-text-main-light transition-all"
+                    type="button"
+                  >
+                    <span className="material-symbols-outlined text-3xl">grid_view</span>
+                    <span className="text-xs font-medium">More</span>
                   </button>
-                ))}
-                <button
-                  className="group flex flex-col items-center justify-center gap-3 h-28 rounded-xl border border-dashed border-border-light dark:border-border-dark bg-background-light/50 dark:bg-surface-dark text-text-secondary-light hover:border-text-secondary-light hover:text-text-main-light transition-all"
-                  type="button"
-                >
-                  <span className="material-symbols-outlined text-3xl">grid_view</span>
-                  <span className="text-xs font-medium">More</span>
-                </button>
-              </div>
+                </div>
+              )}
               {errors.category && (
                 <p className="text-red-500 text-xs mt-1">{errors.category}</p>
               )}
@@ -401,17 +499,18 @@ export default function SellPage() {
                     className="w-full rounded-xl border border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark text-text-main-light dark:text-text-main-dark px-4 py-3.5 focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm text-base appearance-none cursor-pointer"
                     id="brand"
                     value={brand}
-                    onChange={(e) => setBrand(e.target.value)}
+                    onChange={(e) => {
+                      setBrand(e.target.value);
+                      setModel(""); // Reset model when brand changes
+                    }}
+                    disabled={isLoadingData}
                   >
-                    <option value="">Select Brand</option>
-                    <option value="apple">Apple</option>
-                    <option value="samsung">Samsung</option>
-                    <option value="nike">Nike</option>
-                    <option value="sony">Sony</option>
-                    <option value="canon">Canon</option>
-                    <option value="add_new" className="font-bold text-primary">
-                      + Add New Brand
-                    </option>
+                    <option value="">{isLoadingData ? "Loading..." : "Select Brand"}</option>
+                    {brands.map((b) => (
+                      <option key={b.id} value={b.id.toString()}>
+                        {b.name}
+                      </option>
+                    ))}
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-text-secondary-light">
                     <span className="material-symbols-outlined">expand_more</span>
@@ -435,16 +534,16 @@ export default function SellPage() {
                     id="model"
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
+                    disabled={isLoadingData || !brand}
                   >
-                    <option value="">Select Model</option>
-                    <option value="iphone13">iPhone 13</option>
-                    <option value="galaxy_s21">Galaxy S21</option>
-                    <option value="air_max">Air Max</option>
-                    <option value="ps5">PlayStation 5</option>
-                    <option value="eos_r5">EOS R5</option>
-                    <option value="add_new" className="font-bold text-primary">
-                      + Add New Model
+                    <option value="">
+                      {isLoadingData ? "Loading..." : !brand ? "Select a brand first" : "Select Model"}
                     </option>
+                    {filteredModels.map((m) => (
+                      <option key={m.id} value={m.id.toString()}>
+                        {m.name}
+                      </option>
+                    ))}
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-text-secondary-light">
                     <span className="material-symbols-outlined">expand_more</span>
@@ -459,7 +558,9 @@ export default function SellPage() {
         </section>
 
         {/* Section 2: Photos */}
-        <section className="bg-surface-light dark:bg-surface-dark rounded-2xl p-6 md:p-8 shadow-card border border-border-light/50 dark:border-border-dark">
+        <section className="bg-surface-light dark:bg-surface-dark rounded-2xl p-6 md:p-8 shadow-card border border-border-light/50 dark:border-border-dark relative">
+          {/* Disabled Overlay */}
+          <div className="h-full w-full absolute top-0 left-0 bg-white opacity-50 cursor-not-allowed z-50" />
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-text-main-light dark:text-text-main-dark flex items-center gap-2">
               <span className="bg-primary-light text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm">
@@ -560,23 +661,29 @@ export default function SellPage() {
               <label className="text-sm font-bold text-text-main-light dark:text-text-main-dark ml-1">
                 Condition
               </label>
-              <div className="flex flex-wrap gap-2">
-                {conditions.map((cond) => (
-                  <label key={cond} className="cursor-pointer group">
-                    <input
-                      className="peer sr-only"
-                      name="condition"
-                      type="radio"
-                      value={cond.toLowerCase().replace(/\s+/g, "-")}
-                      checked={condition === cond.toLowerCase().replace(/\s+/g, "-")}
-                      onChange={(e) => setCondition(e.target.value)}
-                    />
-                    <span className="block px-4 py-2 rounded-full border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark text-sm font-semibold peer-checked:bg-text-main-light peer-checked:text-white peer-checked:border-text-main-light peer-checked:dark:bg-white peer-checked:dark:text-black hover:border-text-secondary-light transition-all select-none">
-                      {cond}
-                    </span>
-                  </label>
-                ))}
-              </div>
+              {isLoadingData ? (
+                <div className="flex items-center justify-center py-4 text-text-secondary-light">
+                  <span className="text-sm">Loading conditions...</span>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {conditions.map((cond) => (
+                    <label key={cond.id} className="cursor-pointer group">
+                      <input
+                        className="peer sr-only"
+                        name="condition"
+                        type="radio"
+                        value={cond.id.toString()}
+                        checked={condition === cond.id.toString()}
+                        onChange={(e) => setCondition(e.target.value)}
+                      />
+                      <span className="block px-4 py-2 rounded-full border border-border-light dark:border-border-dark bg-surface-light dark:bg-surface-dark text-text-secondary-light dark:text-text-secondary-dark text-sm font-semibold peer-checked:bg-text-main-light peer-checked:text-white peer-checked:border-text-main-light peer-checked:dark:bg-white peer-checked:dark:text-black hover:border-text-secondary-light transition-all select-none">
+                        {cond.name}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
