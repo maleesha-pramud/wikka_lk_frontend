@@ -3,7 +3,10 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
-import sidebarItems from "@/lib/sidebar-nav.json";
+import navigationConfigData from "@/lib/navigation-config.json";
+import type { NavigationConfig } from "@/lib/types/menu-items";
+
+const navigationConfig = navigationConfigData as NavigationConfig;
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -46,7 +49,7 @@ export default function Sidebar() {
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4">
             <div className="space-y-1">
-              {sidebarItems.map((item) => {
+              {navigationConfig.sidebarNavItems.map((item) => {
                 const isActive = pathname === item.href || item.href == "/dashboard";
                 
                 return (

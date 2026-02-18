@@ -2,22 +2,35 @@
 
 import * as React from "react"
 import { AuthDialog } from "@/components/client/login-dialog"
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTitle,
-} from "@/components/client/ui/drawer"
 import { ProfilePopover } from "@/components/client/popovers/profile-popover"
+import { MobileDrawer } from "@/components/client/navbar/mobile-drawer"
 import Link from "next/link"
+import { logoutUser } from "@/app/actions"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [authDialogOpen, setAuthDialogOpen] = React.useState(false)
   const [authMode, setAuthMode] = React.useState<"login" | "register">("login")
+  const [searchQuery, setSearchQuery] = React.useState("")
+  const router = useRouter()
 
   const openAuthDialog = (mode: "login" | "register") => {
     setAuthMode(mode)
     setAuthDialogOpen(true)
+  }
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser()
+      setMobileMenuOpen(false)
+      router.refresh()
+    } catch (error) {
+      console.error("Logout failed:", error)
+      const message = error instanceof Error ? error.message : "Logout failed"
+      toast.error(message)
+    }
   }
 
   return (
@@ -35,24 +48,18 @@ export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex flex-1 justify-center gap-10">
-          <Link
-            className="group flex items-center gap-2 text-sm font-semibold text-text-secondary hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors"
-            href="/messages"
-          >
-            <span className="material-symbols-outlined text-[22px] text-gray-400 group-hover:text-primary transition-colors">
-              chat_bubble
+          <div className="relative w-full max-w-xl">
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[22px] text-gray-400 pointer-events-none">
+              search
             </span>
-            Messages
-          </Link>
-          <Link
-            className="group flex items-center gap-2 text-sm font-semibold text-text-secondary hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors"
-            href="/favorites"
-          >
-            <span className="material-symbols-outlined text-[22px] text-gray-400 group-hover:text-primary transition-colors">
-              favorite
-            </span>
-            Favorites
-          </Link>
+            <input
+              type="text"
+              placeholder="Search for products, categories, brands..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-11 pl-12 pr-4 rounded-full border border-gray-200 bg-gray-50/50 text-sm text-text-main placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white dark:bg-gray-800/50 dark:border-gray-700 dark:text-white dark:focus:bg-gray-800 transition-all"
+            />
+          </div>
         </nav>
 
         {/* Desktop Right Section */}
@@ -97,90 +104,16 @@ export function NavbarClient({ isLoggedIn }: { isLoggedIn: boolean }) {
       </div>
 
       {/* Mobile Navigation Drawer */}
-      <Drawer open={mobileMenuOpen} onOpenChange={setMobileMenuOpen} direction="right">
-        <DrawerContent className="rounded-none border-none">
-          <DrawerTitle className="sr-only">Navigation Menu</DrawerTitle>
-          {/* Drawer Header */}
-          <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100 dark:border-gray-800">
-            <div className="flex items-center gap-3 cursor-pointer">
-              <div className="flex size-10 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/20">
-                <span className="material-symbols-outlined text-2xl font-bold">storefront</span>
-              </div>
-              <span className="text-xl font-bold tracking-tight text-primary dark:text-white">Wikka.lk</span>
-            </div>
-            <button
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-center size-10 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Close menu"
-            >
-              <span className="material-symbols-outlined text-[24px] text-text-main dark:text-white">close</span>
-            </button>
-          </div>
-
-          {/* Drawer Content */}
-          <div className="flex-1 overflow-y-auto h-full flex flex-col">
-            {/* Mobile Menu Items */}
-            <nav className="flex flex-col gap-1 px-3 py-4">
-              <Link
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:text-primary hover:bg-primary/5 dark:text-gray-400 dark:hover:text-primary dark:hover:bg-primary/10 transition-colors font-semibold"
-                href="/messages"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <span className="material-symbols-outlined text-[22px]">chat_bubble</span>
-                Messages
-              </Link>
-              <Link
-                className="flex items-center gap-3 px-4 py-3 rounded-lg text-text-secondary hover:text-primary hover:bg-primary/5 dark:text-gray-400 dark:hover:text-primary dark:hover:bg-primary/10 transition-colors font-semibold"
-                href="/favorites"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <span className="material-symbols-outlined text-[22px]">favorite</span>
-                Favorites
-              </Link>
-            </nav>
-
-            {/* Mobile Auth Section */}
-            {!isLoggedIn && (
-              <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-800">
-                <div className="flex flex-col gap-3 mb-4">
-                  <button
-                    onClick={() => openAuthDialog("login")}
-                    className="h-11 px-6 text-sm font-semibold border border-gray-200 rounded-md hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all bg-white dark:bg-background-dark text-text-main dark:text-white"
-                  >
-                    Login
-                  </button>
-                  <button
-                    onClick={() => openAuthDialog("register")}
-                    className="h-11 px-6 text-sm font-semibold border border-gray-200 rounded-md hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all bg-white dark:bg-background-dark text-text-main dark:text-white"
-                  >
-                    Register
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Mobile Sell Product Button */}
-            {isLoggedIn && (
-              <div className="px-4 py-2">
-                <Link href={"/sell"} className="w-full flex items-center justify-center gap-2 h-11 rounded-lg bg-primary px-6 text-sm font-bold text-white shadow-lg shadow-primary/20 transition-all hover:-translate-y-px hover:bg-primary-hover hover:shadow-primary/30 active:translate-y-px">
-                  <span className="material-symbols-outlined text-[20px]">add</span>
-                  <span>Sell Product</span>
-                </Link>
-              </div>
-            )}
-
-            {/* Spacer to push profile to bottom */}
-            <div className="flex-1" />
-
-            {/* Drawer Footer - Profile Section */}
-            {isLoggedIn && (
-              <div className="px-4 py-4 border-t border-gray-100 dark:border-gray-800">
-                <ProfilePopover isDesktop={false} />
-              </div>
-            )}
-          </div>
-        </DrawerContent>
-      </Drawer>
+      <MobileDrawer
+        isOpen={mobileMenuOpen}
+        onOpenChange={setMobileMenuOpen}
+        isLoggedIn={isLoggedIn}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onLoginClick={() => openAuthDialog("login")}
+        onRegisterClick={() => openAuthDialog("register")}
+        onLogout={handleLogout}
+      />
 
       {/* Auth Dialog */}
       <AuthDialog

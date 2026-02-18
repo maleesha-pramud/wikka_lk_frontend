@@ -9,6 +9,10 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import Link from "next/link"
+import navigationConfigData from "@/lib/navigation-config.json"
+import type { MenuItem, NavigationConfig } from "@/lib/types/menu-items"
+
+const navigationConfig = navigationConfigData as NavigationConfig
 
 
 interface ProfilePopoverProps {
@@ -67,19 +71,39 @@ export function ProfilePopover({ isDesktop }: ProfilePopoverProps) {
       </PopoverTrigger>
       <PopoverContent align="end" className="w-56 p-0">
         <div className="flex flex-col">
-          <Link href={"/dashboard"} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left">
-            <span className="material-symbols-outlined text-[20px]">dashboard</span>
-            Dashboard
-          </Link>
-          <Link href={"/settings"} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left">
-            <span className="material-symbols-outlined text-[20px]">settings</span>
-            Settings
-          </Link>
-          <div className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
-          <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 transition-colors text-left focus:outline-none cursor-pointer">
-            <span className="material-symbols-outlined text-[20px]">logout</span>
-            Logout
-          </button>
+          {navigationConfig.profileMenuItems.map((item: MenuItem, index: number) => {
+            if ("type" in item && item.type === "divider") {
+              return <div key={`divider-${index}`} className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
+            }
+
+            if ("action" in item && item.action === "logout") {
+              return (
+                <button
+                  key={item.id}
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 transition-colors text-left focus:outline-none cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+                  {item.label}
+                </button>
+              )
+            }
+
+            if ("href" in item) {
+              return (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="flex items-center gap-2 px-4 py-3 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left"
+                >
+                  <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+                  {item.label}
+                </Link>
+              )
+            }
+
+            return null
+          })}
         </div>
       </PopoverContent>
     </Popover>

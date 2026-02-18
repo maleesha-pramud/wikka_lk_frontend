@@ -1,0 +1,109 @@
+{
+  "profileMenuItems": [
+    {
+      "id": "messages",
+      "label": "Messages",
+      "icon": "chat_bubble",
+      "href": "/messages"
+    },
+    {
+      "id": "favorites",
+      "label": "Favorites",
+      "icon": "favorite",
+      "href": "/favorites"
+    },
+    {
+      "id": "cart",
+      "label": "Cart",
+      "icon": "shopping_cart",
+      "href": "/cart"
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "id": "dashboard",
+      "label": "Dashboard",
+      "icon": "dashboard",
+      "href": "/dashboard"
+    },
+    {
+      "id": "settings",
+      "label": "Settings",
+      "icon": "settings",
+      "href": "/settings"
+    },
+    {
+      "type": "divider"
+    },
+    {
+      "id": "logout",
+      "label": "Logout",
+      "icon": "logout",
+      "action": "logout"
+    }
+  ],
+  "sidebarNavItems": [
+    {
+      "id": "dashboard",
+      "label": "Dashboard",
+      "icon": "dashboard",
+      "href": "/dashboard"
+    },
+    {
+      "id": "listings",
+      "label": "My Listings",
+      "icon": "inventory_2",
+      "href": "/dashboard/listings"
+    },
+    {
+      "id": "sell",
+      "label": "Sell Item",
+      "icon": "add_circle",
+      "href": "/sell"
+    },
+    {
+      "id": "orders",
+      "label": "Orders",
+      "icon": "shopping_bag",
+      "href": "/dashboard/orders"
+    },
+    {
+      "id": "reviews",
+      "label": "Reviews",
+      "icon": "star",
+      "href": "/dashboard/reviews",
+      "badge": "0"
+    },
+    {
+      "id": "categories",
+      "label": "Categories",
+      "icon": "widgets",
+      "href": "/dashboard/categories"
+    },
+    {
+      "id": "brands",
+      "label": "Brands",
+      "icon": "label",
+      "href": "/dashboard/brands"
+    },
+    {
+      "id": "models",
+      "label": "Models",
+      "icon": "category",
+      "href": "/dashboard/models"
+    },
+    {
+      "id": "colors",
+      "label": "Colors",
+      "icon": "palette",
+      "href": "/dashboard/colors"
+    },
+    {
+      "id": "settings",
+      "label": "Settings",
+      "icon": "settings",
+      "href": "/dashboard/settings"
+    }
+  ]
+}
