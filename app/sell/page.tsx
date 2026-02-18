@@ -3,22 +3,16 @@
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { addProduct, getAllBrands, getAllModels, getAllCategories, getAllConditions } from "@/app/actions";
-
-interface Variant {
-  color: string;
-  price: number;
-  stock: number;
-}
+import { addProduct, getAllBrands, getModelsByBrand, getAllCategories, getAllConditions } from "@/app/actions";
 
 interface FormErrors {
   productName?: string;
   category?: string;
   brand?: string;
   model?: string;
+  basePrice?: string;
   images?: string;
   contact?: string;
-  variants?: string;
 }
 
 interface Brand {
@@ -51,15 +45,12 @@ export default function SellPage() {
   const [brand, setBrand] = useState("");
   const [model, setModel] = useState("");
   const [condition, setCondition] = useState("");
-  const [specs, setSpecs] = useState("");
+  const [basePrice, setBasePrice] = useState("");
   const [description, setDescription] = useState("");
   const [contact, setContact] = useState("");
-  const [openToExchange, setOpenToExchange] = useState(false);
+  const [statusId] = useState(1); // Auto-set to active
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [variants, setVariants] = useState<Variant[]>([
-    { color: "black", price: 1200, stock: 2 },
-  ]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -80,11 +71,9 @@ export default function SellPage() {
       brand,
       model,
       condition,
-      specs,
+      basePrice,
       description,
       contact,
-      openToExchange,
-      variants,
     };
     localStorage.setItem("sell-draft", JSON.stringify(draft));
   }, [
@@ -93,11 +82,9 @@ export default function SellPage() {
     brand,
     model,
     condition,
-    specs,
+    basePrice,
     description,
     contact,
-    openToExchange,
-    variants,
   ]);
 
   // Load draft on mount
@@ -106,41 +93,33 @@ export default function SellPage() {
     if (draft) {
       try {
         const parsed = JSON.parse(draft);
-        setProductName(parsed.title || "");
+        setProductName(parsed.productName || "");
         setSelectedCategory(parsed.selectedCategory || "");
         setBrand(parsed.brand || "");
         setModel(parsed.model || "");
         setCondition(parsed.condition || "");
-        setSpecs(parsed.specs || "");
+        setBasePrice(parsed.basePrice || "");
         setDescription(parsed.description || "");
         setContact(parsed.contact || "");
-        setOpenToExchange(parsed.openToExchange || false);
-        setVariants(
-          parsed.variants || [{ color: "black", price: 1200, stock: 2 }]
-        );
       } catch (e) {
         console.error("Failed to load draft:", e);
       }
     }
   }, []);
 
-  // Fetch brands, models, and categories on mount
+  // Fetch brands, categories, and conditions on mount
   useEffect(() => {
     const fetchData = async () => {
       setIsLoadingData(true);
       try {
-        const [brandsResult, modelsResult, categoriesResult, conditionsResult] = await Promise.all([
+        const [brandsResult, categoriesResult, conditionsResult] = await Promise.all([
           getAllBrands(),
-          getAllModels(),
           getAllCategories(),
           getAllConditions(),
         ]);
 
         if (brandsResult.status && brandsResult.data) {
           setBrands(brandsResult.data as Brand[]);
-        }
-        if (modelsResult.status && modelsResult.data) {
-          setModels(modelsResult.data as Model[]);
         }
         if (categoriesResult.status && categoriesResult.data) {
           setCategories(categoriesResult.data as Category[]);
@@ -160,6 +139,34 @@ export default function SellPage() {
 
     fetchData();
   }, []);
+
+  // Fetch models when brand is selected
+  useEffect(() => {
+    const fetchModels = async () => {
+      if (!brand) {
+        setModels([]);
+        return;
+      }
+
+      try {
+        const modelsResult = await getModelsByBrand(parseInt(brand));
+        if (modelsResult.status && modelsResult.data) {
+          setModels(modelsResult.data as Model[]);
+        } else {
+          setModels([]);
+          toast.error("Failed to load models", {
+            description: modelsResult.message || "Please try again.",
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch models:", error);
+        setModels([]);
+        toast.error("Failed to load models");
+      }
+    };
+
+    fetchModels();
+  }, [brand]);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -182,6 +189,13 @@ export default function SellPage() {
       newErrors.model = "Model is required";
     }
 
+    const price = parseFloat(basePrice);
+    if (!basePrice.trim()) {
+      newErrors.basePrice = "Price is required";
+    } else if (isNaN(price) || price <= 0) {
+      newErrors.basePrice = "Please enter a valid price";
+    }
+
     if (images.length === 0) {
       newErrors.images = "At least one photo is required";
     }
@@ -193,17 +207,6 @@ export default function SellPage() {
       newErrors.contact = "Contact number is required";
     } else if (!/^\+94 \d{3} \d{3} \d{3}$/.test(formattedContact)) {
       newErrors.contact = "Please enter a valid phone number";
-    }
-
-    if (variants.length === 0) {
-      newErrors.variants = "At least one variant is required";
-    } else {
-      const hasValidVariant = variants.some(
-        (v) => v.price > 0 && v.stock >= 0
-      );
-      if (!hasValidVariant) {
-        newErrors.variants = "At least one variant must have a valid price and stock";
-      }
     }
 
     setErrors(newErrors);
@@ -226,23 +229,20 @@ export default function SellPage() {
     setIsSubmitting(true);
 
     try {
-      // Calculate base price from variants (using the first variant's price)
-      const basePrice = variants.length > 0 ? variants[0].price : 0;
-
       // Format contact number (remove spaces and +94 prefix)
       const formattedContact = contact.replace(/\s+/g, "").replace(/^\+94/, "0");
 
       // Call the API
       const result = await addProduct(
         productName,
-        basePrice,
+        parseFloat(basePrice),
         description,
         formattedContact,
-        parseInt(model) || 1, // Convert model to number, default to 1
-        parseInt(condition) || 1, // Use numeric condition ID
-        parseInt(selectedCategory) || 1, // Use numeric category ID
-        1, // sellerId - TODO: get from user session
-        1  // statusId - default to 1 (active)
+        parseInt(model) || 1,
+        parseInt(condition) || 1,
+        parseInt(selectedCategory) || 1,
+        1, // sellerId - auto-selected
+        statusId
       );
 
       if (result.status) {
@@ -259,13 +259,11 @@ export default function SellPage() {
         setBrand("");
         setModel("");
         setCondition(conditions.length > 0 ? conditions[0].id.toString() : "");
-        setSpecs("");
+        setBasePrice("");
         setDescription("");
         setContact("");
-        setOpenToExchange(false);
         setImages([]);
         setImagePreviews([]);
-        setVariants([{ color: "black", price: 0, stock: 0 }]);
         setErrors({});
       } else {
         toast.error("Failed to list item", {
@@ -326,11 +324,6 @@ export default function SellPage() {
     e.dataTransfer.effectAllowed = "move";
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  };
-
   const handleDrop = (e: React.DragEvent, dropIndex: number) => {
     e.preventDefault();
     if (draggedIndex === null || draggedIndex === dropIndex) return;
@@ -353,24 +346,7 @@ export default function SellPage() {
     setDraggedIndex(null);
   };
 
-  // Filter models based on selected brand
-  const filteredModels = brand
-    ? models.filter((m) => m.brandId === parseInt(brand))
-    : models;
 
-  const addVariant = () => {
-    setVariants([...variants, { color: "black", price: 0, stock: 0 }]);
-  };
-
-  const updateVariant = (index: number, field: keyof Variant, value: string | number) => {
-    const newVariants = [...variants];
-    newVariants[index] = { ...newVariants[index], [field]: value };
-    setVariants(newVariants);
-  };
-
-  const removeVariant = (index: number) => {
-    setVariants(variants.filter((_, i) => i !== index));
-  };
 
   const handleContactChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
@@ -513,7 +489,7 @@ export default function SellPage() {
                     ))}
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-text-secondary-light">
-                    <span className="material-symbols-outlined">expand_more</span>
+                    <span className="material-symbols-outlined text-lg">expand_more</span>
                   </div>
                 </div>
                 {errors.brand && (
@@ -534,19 +510,19 @@ export default function SellPage() {
                     id="model"
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
-                    disabled={isLoadingData || !brand}
+                    disabled={!brand}
                   >
                     <option value="">
-                      {isLoadingData ? "Loading..." : !brand ? "Select a brand first" : "Select Model"}
+                      {!brand ? "Select a brand first" : "Select Model"}
                     </option>
-                    {filteredModels.map((m) => (
+                    {models.map((m) => (
                       <option key={m.id} value={m.id.toString()}>
                         {m.name}
                       </option>
                     ))}
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-text-secondary-light">
-                    <span className="material-symbols-outlined">expand_more</span>
+                    <span className="material-symbols-outlined text-lg">expand_more</span>
                   </div>
                 </div>
                 {errors.model && (
@@ -558,9 +534,7 @@ export default function SellPage() {
         </section>
 
         {/* Section 2: Photos */}
-        <section className="bg-surface-light dark:bg-surface-dark rounded-2xl p-6 md:p-8 shadow-card border border-border-light/50 dark:border-border-dark relative">
-          {/* Disabled Overlay */}
-          <div className="h-full w-full absolute top-0 left-0 bg-white opacity-50 cursor-not-allowed z-50" />
+        <section className="bg-surface-light dark:bg-surface-dark rounded-2xl p-6 md:p-8 shadow-card border border-border-light/50 dark:border-border-dark">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-bold text-text-main-light dark:text-text-main-dark flex items-center gap-2">
               <span className="bg-primary-light text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm">
@@ -689,28 +663,6 @@ export default function SellPage() {
             <div className="flex flex-col gap-2">
               <label
                 className="text-sm font-bold text-text-main-light dark:text-text-main-dark ml-1"
-                htmlFor="specs"
-              >
-                Specifications
-              </label>
-              <div className="relative">
-                <input
-                  className="w-full rounded-xl border border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark text-text-main-light dark:text-text-main-dark placeholder-text-secondary-light/60 px-4 py-3.5 focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm text-base"
-                  id="specs"
-                  placeholder="e.g. 8GB RAM, 256GB Storage, Size 42..."
-                  type="text"
-                  value={specs}
-                  onChange={(e) => setSpecs(e.target.value)}
-                />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-text-secondary-light font-medium bg-surface-light dark:bg-surface-dark px-1 rounded">
-                  Variant Details
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label
-                className="text-sm font-bold text-text-main-light dark:text-text-main-dark ml-1"
                 htmlFor="description"
               >
                 Description
@@ -728,120 +680,57 @@ export default function SellPage() {
           </div>
         </section>
 
-        {/* Section 4: Variants & Availability */}
+        {/* Section 4: Pricing & Contact */}
         <section className="bg-surface-light dark:bg-surface-dark rounded-2xl p-6 md:p-8 shadow-card border border-border-light/50 dark:border-border-dark">
           <h2 className="text-lg font-bold text-text-main-light dark:text-text-main-dark mb-6 flex items-center gap-2">
             <span className="bg-primary-light text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm">
               4
             </span>
-            Variants &amp; Availability
+            Pricing &amp; Contact
           </h2>
 
-          <div className="space-y-8">
-            <div className="flex flex-col gap-4">
-              <label className="text-sm font-bold text-text-main-light dark:text-text-main-dark ml-1">
-                Product Variants
-              </label>
-              <p className="text-xs text-text-secondary-light -mt-3 ml-1">
-                Define different price and stock levels for each color option.
-              </p>
-
-              <div className="bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark overflow-hidden shadow-sm">
-                <div className="grid grid-cols-12 gap-2 sm:gap-4 px-4 py-3 bg-background-light dark:bg-white/5 border-b border-border-light dark:border-border-dark text-[10px] sm:text-xs font-bold text-text-secondary-light uppercase tracking-wider">
-                  <div className="col-span-5 md:col-span-4">Color</div>
-                  <div className="col-span-3 md:col-span-3">Price (LKR)</div>
-                  <div className="col-span-3 md:col-span-3">Stock</div>
-                  <div className="col-span-1 md:col-span-2"></div>
-                </div>
-
-                {variants.map((variant, idx) => (
-                  <div
-                    key={idx}
-                    className="grid grid-cols-12 gap-2 sm:gap-4 px-4 py-3 items-center border-b border-border-light dark:border-border-dark last:border-0"
-                  >
-                    <div className="col-span-5 md:col-span-4 flex items-center gap-2 sm:gap-3">
-                      <div
-                        className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border border-border-light dark:border-border-dark shadow-sm shrink-0`}
-                        style={{ backgroundColor: variant.color }}
-                      ></div>
-                      <div className="relative w-full">
-                        <select
-                          className="w-full bg-transparent font-medium text-text-main-light dark:text-text-main-dark border-none focus:ring-0 p-0 text-xs sm:text-sm cursor-pointer truncate pr-4"
-                          value={variant.color}
-                          onChange={(e) => updateVariant(idx, "color", e.target.value)}
-                        >
-                          <option value="black">Black</option>
-                          <option value="white">White</option>
-                          <option value="blue">Blue</option>
-                          <option value="red">Red</option>
-                        </select>
-                        <div className="absolute inset-y-0 right-0 flex items-center pointer-events-none text-text-secondary-light">
-                          <span className="material-symbols-outlined text-sm">expand_more</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="col-span-3 md:col-span-3 relative">
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-text-secondary-light text-xs">LKR</span>
-                      <input
-                        className="w-full bg-background-light/50 dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg pl-10 pr-2 py-1.5 text-xs sm:text-sm font-bold text-text-main-light focus:ring-1 focus:ring-primary focus:border-primary placeholder-text-secondary-light/50"
-                        type="number"
-                        value={variant.price}
-                        onChange={(e) => updateVariant(idx, "price", Number(e.target.value))}
-                      />
-                    </div>
-
-                    <div className="col-span-3 md:col-span-3">
-                      <input
-                        className="w-full bg-background-light/50 dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-text-main-light focus:ring-1 focus:ring-primary focus:border-primary"
-                        type="number"
-                        value={variant.stock}
-                        onChange={(e) => updateVariant(idx, "stock", Number(e.target.value))}
-                      />
-                    </div>
-
-                    <div className="col-span-1 md:col-span-2 flex justify-end">
-                      <button
-                        type="button"
-                        className="text-text-secondary-light hover:text-red-500 transition-colors p-1.5 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg group"
-                        title="Remove variant"
-                        onClick={() => removeVariant(idx)}
-                      >
-                        <span className="material-symbols-outlined text-lg sm:text-xl group-hover:scale-110 transition-transform">
-                          delete
-                        </span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-
-                <div onClick={addVariant} className="px-4 py-3 bg-background-light/30 dark:bg-white/5 hover:bg-background-light/60 transition-colors cursor-pointer border-t border-border-light dark:border-border-dark">
-                  <div
-                    className="flex items-center gap-2 text-sm font-bold text-primary hover:text-primary-hover transition-colors w-full cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined text-lg">
-                      add_circle
-                    </span>
-                    Add another color variant
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-              <div className="w-full">
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="flex flex-col gap-2">
                 <label
-                  className="text-sm font-bold text-text-main-light dark:text-text-main-dark ml-1 mb-2 block"
+                  className="text-sm font-bold text-text-main-light dark:text-text-main-dark ml-1"
+                  htmlFor="basePrice"
+                >
+                  Price (LKR)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary-light font-medium">
+                    Rs.
+                  </span>
+                  <input
+                    className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark text-text-main-light dark:text-text-main-dark placeholder-text-secondary-light/60 focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm text-base"
+                    id="basePrice"
+                    placeholder="0.00"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={basePrice}
+                    onChange={(e) => setBasePrice(e.target.value)}
+                  />
+                </div>
+                {errors.basePrice && (
+                  <p className="text-red-500 text-xs mt-1">{errors.basePrice}</p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label
+                  className="text-sm font-bold text-text-main-light dark:text-text-main-dark ml-1"
                   htmlFor="contact"
                 >
                   Contact Number
                 </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-text-secondary-light">
-                    <span className="material-symbols-outlined">call</span>
-                  </div>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-secondary-light">
+                    <span className="material-symbols-outlined text-lg">phone</span>
+                  </span>
                   <input
-                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark text-text-main-light dark:text-text-main-dark text-base font-medium placeholder-text-secondary-light/30 focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm"
+                    className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-border-light dark:border-border-dark bg-background-light/30 dark:bg-background-dark text-text-main-light dark:text-text-main-dark placeholder-text-secondary-light/60 focus:ring-2 focus:ring-primary focus:border-primary transition-all shadow-sm text-base"
                     id="contact"
                     placeholder="+94 600 000 000"
                     type="tel"
@@ -849,29 +738,9 @@ export default function SellPage() {
                     onChange={handleContactChange}
                   />
                 </div>
-                <p className="text-[11px] text-text-secondary-light mt-1.5 ml-1">
-                  For buyers to contact you quickly.
-                </p>
                 {errors.contact && (
                   <p className="text-red-500 text-xs mt-1">{errors.contact}</p>
                 )}
-              </div>
-
-              <div className="flex items-center h-full pt-1 md:pt-8">
-                <label className="inline-flex items-center cursor-pointer group select-none">
-                  <div className="relative flex items-center">
-                    <input
-                      className="peer sr-only"
-                      type="checkbox"
-                      checked={openToExchange}
-                      onChange={(e) => setOpenToExchange(e.target.checked)}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                  </div>
-                  <span className="ml-3 text-sm font-medium text-text-main-light dark:text-text-main-dark group-hover:text-primary transition-colors">
-                    Open to exchanges
-                  </span>
-                </label>
               </div>
             </div>
           </div>

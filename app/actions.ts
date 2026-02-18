@@ -150,6 +150,12 @@ export async function getAllModels(): Promise<ApiResponse> {
   return handleAction('/model', { method: 'GET' }, 'Failed to fetch models');
 }
 
+export async function getModelsByBrand(brandId: number): Promise<ApiResponse> {
+  return handleAction(`/model/brand/${brandId}`, {
+    method: 'GET',
+  }, 'Failed to fetch models for the selected brand');
+}
+
 export async function addModel(name: string, brandId: number): Promise<ApiResponse> {
   return handleAction('/model', {
     method: 'POST',
