@@ -121,7 +121,7 @@ export function ProductDetailsClient({ productId }: ProductDetailsClientProps) {
               {product.title}
             </h1>
             <div className="flex items-baseline gap-3">
-              <span className="text-4xl font-extrabold text-primary">€{product.price}</span>
+              <span className="text-4xl font-extrabold text-primary">LKR {product.price}</span>
               {product.condition && (
                 <span className="rounded-lg bg-primary/10 px-3 py-1 text-sm font-bold text-primary uppercase tracking-wide">
                   {product.condition}

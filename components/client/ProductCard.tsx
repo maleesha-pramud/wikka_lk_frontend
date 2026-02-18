@@ -80,7 +80,7 @@ export function ProductCard({
       <div className="px-1 pb-2">
         <div className="mb-1 flex items-baseline justify-between">
           <span className="text-lg font-bold text-text-main dark:text-white">
-            €{price}
+            LKR {price}
           </span>
         </div>
         <h3 className="line-clamp-2 text-sm font-medium text-text-main dark:text-gray-200">

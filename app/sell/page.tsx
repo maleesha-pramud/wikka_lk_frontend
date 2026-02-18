@@ -4,6 +4,13 @@ import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { addProduct, getAllBrands, getModelsByBrand, getAllCategories, getAllConditions } from "@/app/actions";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/client/ui/dialog";
 
 interface FormErrors {
   productName?: string;
@@ -54,6 +61,7 @@ export default function SellPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // API data
@@ -368,6 +376,26 @@ export default function SellPage() {
     setContact(formatted);
   };
 
+  const getSelectedCategoryName = () => {
+    const category = categories.find(c => c.id.toString() === selectedCategory);
+    return category?.name || "Category";
+  };
+
+  const getSelectedBrandName = () => {
+    const brandObj = brands.find(b => b.id.toString() === brand);
+    return brandObj?.name || "Brand";
+  };
+
+  const getSelectedModelName = () => {
+    const modelObj = models.find(m => m.id.toString() === model);
+    return modelObj?.name || "Model";
+  };
+
+  const getSelectedConditionName = () => {
+    const conditionObj = conditions.find(c => c.id.toString() === condition);
+    return conditionObj?.name || "Not specified";
+  };
+
   return (
     <main className="px-6 lg:px-8 py-8">
       <div className="mb-10 max-w-2xl">
@@ -378,6 +406,18 @@ export default function SellPage() {
           Create a listing in seconds. Good photos and a clear title help you sell
           faster.
         </p>
+        {/* Overall tip */}
+        <div className="mt-4 flex items-start gap-3 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+          <span className="material-symbols-outlined text-blue-500 text-xl mt-0.5">lightbulb</span>
+          <div>
+            <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-1">
+              Pro Tip: Listings with clear photos and detailed descriptions get 3x more views!
+            </p>
+            <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">
+              Take a few minutes to make your listing stand out.
+            </p>
+          </div>
+        </div>
       </div>
 
       <form className="flex flex-col gap-6 md:gap-8" onSubmit={handleSubmit}>
@@ -415,6 +455,10 @@ export default function SellPage() {
               {errors.productName && (
                 <p className="text-red-500 text-xs mt-1">{errors.productName}</p>
               )}
+              <div className="flex items-center gap-2 text-xs text-text-secondary-light">
+                <span className="material-symbols-outlined text-sm text-green-500">check_circle</span>
+                <span>Include brand, model, and key features for better visibility</span>
+              </div>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -615,10 +659,23 @@ export default function SellPage() {
             )}
           </div>
 
-          <p className="mt-4 text-xs font-medium text-text-secondary-light flex items-center gap-1.5 bg-background-light dark:bg-background-dark w-fit px-3 py-1.5 rounded-lg">
-            <span className="material-symbols-outlined text-sm">lightbulb</span>
-            Tip: Drag photos to reorder. The first photo is your main image.
-          </p>
+          <div className="mt-4 space-y-2">
+            <p className="text-xs font-medium text-text-secondary-light flex items-center gap-1.5 bg-background-light dark:bg-background-dark w-fit px-3 py-1.5 rounded-lg">
+              <span className="material-symbols-outlined text-sm">lightbulb</span>
+              Drag photos to reorder. The first photo is your main image.
+            </p>
+            <div className="flex items-start gap-2 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+              <span className="material-symbols-outlined text-green-500 text-base mt-0.5">photo_camera</span>
+              <div className="text-xs text-green-600 dark:text-green-400">
+                <span className="font-semibold">Good photos sell faster!</span>
+                <ul className="mt-1 space-y-0.5 text-text-secondary-light dark:text-text-secondary-dark">
+                  <li>• Use natural lighting</li>
+                  <li>• Show all angles and any defects</li>
+                  <li>• Clean background works best</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Section 3: Details */}
@@ -675,6 +732,10 @@ export default function SellPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 ></textarea>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-text-secondary-light">
+                <span className="material-symbols-outlined text-sm text-blue-500">article</span>
+                <span>Detailed descriptions build buyer trust and reduce questions</span>
               </div>
             </div>
           </div>
@@ -756,15 +817,171 @@ export default function SellPage() {
               Review your listing before publishing.
             </span>
           </div>
-          <button
-            className="w-full sm:w-auto bg-primary hover:bg-primary-hover text-white text-base font-bold py-3.5 px-12 rounded-full shadow-lg shadow-primary/30 transform transition-all hover:scale-[1.02] active:scale-[0.98]"
-            type="submit"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Listing..." : "List Item"}
-          </button>
+          <div className="flex gap-3 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => setShowPreview(true)}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-surface-light dark:bg-surface-dark border-2 border-primary text-primary hover:bg-primary/5 text-base font-bold py-3.5 px-8 rounded-full shadow-lg transform transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <span className="material-symbols-outlined text-xl">visibility</span>
+              Preview
+            </button>
+            <button
+              className="flex-1 sm:flex-none bg-primary hover:bg-primary-hover text-white text-base font-bold py-3.5 px-12 rounded-full shadow-lg shadow-primary/30 transform transition-all hover:scale-[1.02] active:scale-[0.98]"
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Listing..." : "List Item"}
+            </button>
+          </div>
         </div>
       </form>
+
+      {/* Preview Dialog */}
+      <Dialog open={showPreview} onOpenChange={setShowPreview}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">visibility</span>
+              Preview - How buyers will see your listing
+            </DialogTitle>
+            <DialogDescription>
+              This is how your product will appear to potential buyers
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Product Preview Card */}
+            <div className="bg-background-light dark:bg-background-dark rounded-2xl overflow-hidden border border-border-light/50 dark:border-border-dark">
+              {/* Images Section */}
+              <div className="relative bg-surface-light dark:bg-surface-dark">
+                {imagePreviews.length > 0 ? (
+                  <div className="aspect-video relative">
+                    <Image
+                      src={imagePreviews[0]}
+                      alt="Main product"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                ) : (
+                  <div className="aspect-video flex items-center justify-center bg-background-light dark:bg-background-dark">
+                    <div className="text-center">
+                      <span className="material-symbols-outlined text-6xl text-text-secondary-light/30 mb-2">
+                        image
+                      </span>
+                      <p className="text-sm text-text-secondary-light">No photos added</p>
+                    </div>
+                  </div>
+                )}
+                
+                {imagePreviews.length > 1 && (
+                  <div className="absolute bottom-4 left-4 right-4 flex gap-2 overflow-x-auto">
+                    {imagePreviews.slice(1, 5).map((img, idx) => (
+                      <div key={idx} className="shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 border-white/80 shadow-lg">
+                        <Image src={img} alt={`Preview ${idx + 2}`} width={64} height={64} className="object-cover w-full h-full" />
+                      </div>
+                    ))}
+                    {imagePreviews.length > 5 && (
+                      <div className="shrink-0 w-16 h-16 rounded-lg bg-black/60 backdrop-blur-sm flex items-center justify-center border-2 border-white/80 shadow-lg">
+                        <span className="text-white text-xs font-bold">+{imagePreviews.length - 5}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Product Details */}
+              <div className="p-6 space-y-4">
+                {/* Title and Price */}
+                <div>
+                  <h3 className="text-2xl font-bold text-text-main-light dark:text-text-main-dark mb-2">
+                    {productName || "Your Product Title"}
+                  </h3>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-extrabold text-primary">
+                      Rs. {basePrice || "0"}
+                    </span>
+                    {condition && (
+                      <span className="px-3 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded-full text-xs font-semibold">
+                        {getSelectedConditionName()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Details Grid */}
+                <div className="grid grid-cols-2 gap-4 p-4 bg-surface-light dark:bg-surface-dark rounded-xl">
+                  <div>
+                    <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">Category</p>
+                    <p className="font-semibold text-text-main-light dark:text-text-main-dark">
+                      {getSelectedCategoryName()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">Brand</p>
+                    <p className="font-semibold text-text-main-light dark:text-text-main-dark">
+                      {getSelectedBrandName()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">Model</p>
+                    <p className="font-semibold text-text-main-light dark:text-text-main-dark">
+                      {getSelectedModelName()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark mb-1">Contact</p>
+                    <p className="font-semibold text-text-main-light dark:text-text-main-dark">
+                      {contact || "+94 XXX XXX XXX"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div>
+                  <h4 className="font-bold text-text-main-light dark:text-text-main-dark mb-2">Description</h4>
+                  <p className="text-text-secondary-light dark:text-text-secondary-dark text-sm leading-relaxed whitespace-pre-wrap">
+                    {description || "No description provided yet. Add details about your product to help buyers make a decision."}
+                  </p>
+                </div>
+
+                {/* Seller Info */}
+                <div className="flex items-center justify-between pt-4 border-t border-border-light/50 dark:border-border-dark">
+                  <div className="flex items-center gap-3">
+                    <div className="size-12 rounded-full bg-primary text-white flex items-center justify-center font-bold">
+                      JD
+                    </div>
+                    <div>
+                      <p className="font-semibold text-text-main-light dark:text-text-main-dark">John Doe</p>
+                      <p className="text-xs text-text-secondary-light dark:text-text-secondary-dark">Member since 2024</p>
+                    </div>
+                  </div>
+                  <button className="flex items-center gap-2 bg-primary text-white font-semibold px-6 py-2 rounded-lg hover:bg-primary-hover transition-all">
+                    <span className="material-symbols-outlined text-lg">chat</span>
+                    Contact Seller
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Preview Notes */}
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <span className="material-symbols-outlined text-blue-500 text-xl mt-0.5">info</span>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-1">Preview Notes</p>
+                  <ul className="text-xs text-text-secondary-light dark:text-text-secondary-dark space-y-1">
+                    <li>• This preview shows how your listing will appear to buyers</li>
+                    <li>• Make sure all information is accurate before publishing</li>
+                    <li>• You can edit your listing anytime after publishing</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

@@ -101,12 +101,10 @@ export default function Home() {
                 <label className="text-sm font-bold text-text-main dark:text-gray-200">Price Range</label>
                 <div className="flex items-center gap-3">
                   <div className="relative w-full">
-                    <span className="absolute left-3 top-2.5 text-gray-400">€</span>
                     <input className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-7 pr-3 py-2.5 text-sm font-medium focus:border-primary focus:ring-primary dark:border-gray-700 dark:bg-background-dark dark:text-white" placeholder="Min" type="number" />
                   </div>
                   <span className="text-gray-400 font-medium">-</span>
                   <div className="relative w-full">
-                    <span className="absolute left-3 top-2.5 text-gray-400">€</span>
                     <input className="w-full rounded-lg border border-gray-200 bg-gray-50 pl-7 pr-3 py-2.5 text-sm font-medium focus:border-primary focus:ring-primary dark:border-gray-700 dark:bg-background-dark dark:text-white" placeholder="Max" type="number" />
                   </div>
                 </div>
