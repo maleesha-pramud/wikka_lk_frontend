@@ -76,34 +76,104 @@
       "badge": "0"
     },
     {
+      "id": "settings",
+      "label": "Settings",
+      "icon": "settings",
+      "href": "/dashboard/settings"
+    }
+  ],
+  "adminSidebarNavItems": [
+    {
+      "id": "admin-dashboard",
+      "label": "Dashboard",
+      "icon": "dashboard",
+      "href": "/admin"
+    },
+    {
+      "id": "users",
+      "label": "Users",
+      "icon": "group",
+      "href": "/admin/users"
+    },
+    {
+      "id": "all-listings",
+      "label": "All Listings",
+      "icon": "inventory_2",
+      "href": "/admin/listings"
+    },
+    {
+      "id": "all-orders",
+      "label": "All Orders",
+      "icon": "shopping_bag",
+      "href": "/admin/orders"
+    },
+    {
       "id": "categories",
       "label": "Categories",
       "icon": "widgets",
-      "href": "/dashboard/categories"
+      "href": "/admin/categories"
     },
     {
       "id": "brands",
       "label": "Brands",
       "icon": "label",
-      "href": "/dashboard/brands"
+      "href": "/admin/brands"
     },
     {
       "id": "models",
       "label": "Models",
       "icon": "category",
-      "href": "/dashboard/models"
+      "href": "/admin/models"
     },
     {
       "id": "colors",
       "label": "Colors",
       "icon": "palette",
-      "href": "/dashboard/colors"
+      "href": "/admin/colors"
     },
     {
-      "id": "settings",
+      "id": "reports",
+      "label": "Reports",
+      "icon": "analytics",
+      "href": "/admin/reports"
+    },
+    {
+      "id": "admin-settings",
       "label": "Settings",
       "icon": "settings",
-      "href": "/dashboard/settings"
+      "href": "/admin/settings"
+    }
+  ],
+  "buyerSidebarNavItems": [
+    {
+      "id": "buyer-dashboard",
+      "label": "Dashboard",
+      "icon": "dashboard",
+      "href": "/buyer"
+    },
+    {
+      "id": "my-orders",
+      "label": "My Orders",
+      "icon": "shopping_bag",
+      "href": "/buyer/orders"
+    },
+    {
+      "id": "favorites",
+      "label": "Favorites",
+      "icon": "favorite",
+      "href": "/buyer/favorites"
+    },
+    {
+      "id": "my-reviews",
+      "label": "My Reviews",
+      "icon": "rate_review",
+      "href": "/buyer/reviews"
+    },
+    {
+      "id": "buyer-settings",
+      "label": "Settings",
+      "icon": "settings",
+      "href": "/buyer/settings"
     }
   ],
   "mockProducts": [

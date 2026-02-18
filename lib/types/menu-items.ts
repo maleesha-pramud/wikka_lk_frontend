@@ -26,6 +26,8 @@ export interface SidebarNavItem {
 export interface StaticData {
   profileMenuItems: MenuItem[]
   sidebarNavItems: SidebarNavItem[]
+  buyerSidebarNavItems: SidebarNavItem[]
+  adminSidebarNavItems: SidebarNavItem[]
 }
 
 export interface MenuConfig {

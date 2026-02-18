@@ -366,7 +366,7 @@ export default function ListingsPage() {
 
               {/* Content */}
               <div className="p-5">
-                <h3 className="font-bold text-text-main-light dark:text-text-main-dark mb-2 line-clamp-2 min-h-[3rem]">
+                <h3 className="font-bold text-text-main-light dark:text-text-main-dark mb-2 line-clamp-2 min-h-12">
                   {listing.title}
                 </h3>
                 
