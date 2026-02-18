@@ -182,14 +182,34 @@ export function ProductDetailsClient({ productId }: ProductDetailsClientProps) {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-3">
-            <button className="flex h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-8 text-lg font-bold text-white transition-colors hover:bg-primary-hover shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined text-[24px]">call</span>
-              Call Seller
-            </button>
-            <button className="flex h-14 items-center justify-center rounded-xl border-2 border-gray-200 bg-white px-6 text-text-main transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-gray-700 dark:bg-surface-dark dark:text-white">
-              <span className="material-symbols-outlined text-[24px]">share</span>
-            </button>
+          <div className="flex flex-col gap-3">
+            <div className="flex gap-3">
+              <button className="flex h-14 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-lg font-bold text-white transition-colors hover:bg-primary-hover shadow-lg shadow-primary/20">
+                <span className="material-symbols-outlined text-[24px]">shopping_cart</span>
+                Add to Cart
+              </button>
+              <button 
+                onClick={handleFavoriteToggle}
+                className={`flex h-14 items-center justify-center rounded-xl border-2 px-6 transition-all ${
+                  isFavorite 
+                    ? 'border-red-500 bg-red-50 text-red-500 dark:bg-red-500/10' 
+                    : 'border-gray-200 bg-white text-text-main hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-gray-700 dark:bg-surface-dark dark:text-white'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[24px]">
+                  {isFavorite ? 'favorite' : 'favorite_border'}
+                </span>
+              </button>
+            </div>
+            <div className="flex gap-3">
+              <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl border-2 border-gray-200 bg-white px-6 font-semibold text-text-main transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-gray-700 dark:bg-surface-dark dark:text-white">
+                <span className="material-symbols-outlined text-[20px]">call</span>
+                Call Seller
+              </button>
+              <button className="flex h-12 items-center justify-center rounded-xl border-2 border-gray-200 bg-white px-6 text-text-main transition-colors hover:border-primary hover:bg-primary/5 hover:text-primary dark:border-gray-700 dark:bg-surface-dark dark:text-white">
+                <span className="material-symbols-outlined text-[20px]">share</span>
+              </button>
+            </div>
           </div>
 
           {/* Safety Tips */}
