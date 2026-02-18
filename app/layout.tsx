@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { CartProvider } from "@/lib/cart-context";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -27,8 +28,10 @@ export default function RootLayout({
       <body
         className={`${plusJakartaSans.variable} font-display antialiased bg-background-light dark:bg-background-dark text-text-main dark:text-white transition-colors duration-200`}
       >
-        {children}
-        <Toaster position="top-right" />
+        <CartProvider>
+          {children}
+          <Toaster position="top-right" />
+        </CartProvider>
       </body>
     </html>
   );

@@ -158,6 +158,12 @@
       "href": "/buyer/orders"
     },
     {
+      "id": "cart",
+      "label": "Shopping Cart",
+      "icon": "shopping_cart",
+      "href": "/buyer/cart"
+    },
+    {
       "id": "favorites",
       "label": "Favorites",
       "icon": "favorite",
