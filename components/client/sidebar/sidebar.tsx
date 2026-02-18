@@ -3,10 +3,10 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
-import navigationConfigData from "@/lib/navigation-config.json";
-import type { NavigationConfig } from "@/lib/types/menu-items";
+import staticData from "@/lib/static-data.json";
+import type { StaticData } from "@/lib/types/menu-items";
 
-const navigationConfig = navigationConfigData as NavigationConfig;
+const staticValues = staticData as StaticData;
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -49,7 +49,7 @@ export default function Sidebar() {
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4">
             <div className="space-y-1">
-              {navigationConfig.sidebarNavItems.map((item) => {
+              {staticValues.sidebarNavItems.map((item) => {
                 const isActive = pathname === item.href || item.href == "/dashboard";
                 
                 return (

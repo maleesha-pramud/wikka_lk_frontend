@@ -8,10 +8,10 @@ import {
   DrawerTitle,
 } from "@/components/client/ui/drawer"
 import { ProfilePopover } from "@/components/client/popovers/profile-popover"
-import navigationConfigData from "@/lib/navigation-config.json"
-import type { MenuItem, NavigationConfig } from "@/lib/types/menu-items"
+import staticData from "@/lib/static-data.json"
+import type { MenuItem, StaticData } from "@/lib/types/menu-items"
 
-const navigationConfig = navigationConfigData as NavigationConfig
+const staticValues = staticData as StaticData
 
 interface MobileDrawerProps {
   isOpen: boolean
@@ -113,7 +113,7 @@ export function MobileDrawer({
           {/* Mobile Menu Items for Logged In Users */}
           {isLoggedIn && (
             <nav className="flex flex-col gap-1 px-3 py-4 border-t border-gray-100 dark:border-gray-800">
-              {navigationConfig.profileMenuItems.map((item: MenuItem, index: number) => {
+              {staticValues.profileMenuItems.map((item: MenuItem, index: number) => {
                 if ("type" in item && item.type === "divider") {
                   return <div key={`divider-${index}`} className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
                 }

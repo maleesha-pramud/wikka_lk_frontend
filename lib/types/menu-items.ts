@@ -23,7 +23,7 @@ export interface SidebarNavItem {
   badge?: string
 }
 
-export interface NavigationConfig {
+export interface StaticData {
   profileMenuItems: MenuItem[]
   sidebarNavItems: SidebarNavItem[]
 }

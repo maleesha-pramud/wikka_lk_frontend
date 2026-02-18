@@ -9,10 +9,10 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import Link from "next/link"
-import navigationConfigData from "@/lib/navigation-config.json"
-import type { MenuItem, NavigationConfig } from "@/lib/types/menu-items"
+import staticData from "@/lib/static-data.json"
+import type { MenuItem, StaticData } from "@/lib/types/menu-items"
 
-const navigationConfig = navigationConfigData as NavigationConfig
+const staticValues = staticData as StaticData
 
 
 interface ProfilePopoverProps {
@@ -71,7 +71,7 @@ export function ProfilePopover({ isDesktop }: ProfilePopoverProps) {
       </PopoverTrigger>
       <PopoverContent align="end" className="w-56 p-0">
         <div className="flex flex-col">
-          {navigationConfig.profileMenuItems.map((item: MenuItem, index: number) => {
+          {staticValues.profileMenuItems.map((item: MenuItem, index: number) => {
             if ("type" in item && item.type === "divider") {
               return <div key={`divider-${index}`} className="h-px bg-gray-200 dark:bg-gray-700 my-1" />
             }
